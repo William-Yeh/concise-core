@@ -35,10 +35,9 @@ import edu.stanford.nlp.tagger.maxent.MaxentTagger;
  */
 public class Importer extends DocumentWriter {
 	
-	//public IndexWriter writer;
 	private MaxentTagger posTagger;
 	private Analyzer indexAnalyzer;
-	
+	private int fileCount = 0;
 	
 	/**
 	 * default constructor.
@@ -156,6 +155,9 @@ public class Importer extends DocumentWriter {
 		doc.add(new IntField(ConciseField.IS_TOKENIZED.field(), isTokenized ? 1 : 0, Store.YES));
 		
 		addDocument(doc);
+		fileCount++;
+		if (fileCount % 100 == 0)
+			commit();
 		return doc;
 	}
 }
