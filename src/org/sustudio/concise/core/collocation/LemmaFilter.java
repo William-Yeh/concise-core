@@ -31,8 +31,8 @@ public class LemmaFilter extends TokenFilter {
 			{
 				// checking lemma_list
 				Lemma lemma = CCPrefs.LOWERCASE_ENABLED ? 
-						CCPrefs.LEMMA_LIST.getIgnoreCase(termAtt.toString()) :
-						CCPrefs.LEMMA_LIST.get(termAtt.toString());
+						CCPrefs.LEMMA_LIST.getLemmaWithFormIgnoreCase(termAtt.toString()) :
+						CCPrefs.LEMMA_LIST.getLemmaWithForm(termAtt.toString());
 				if (lemma != null) {
 					termAtt.setEmpty();
 					termAtt.append(lemma.getWord());

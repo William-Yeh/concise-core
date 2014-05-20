@@ -6,6 +6,8 @@ import java.util.StringTokenizer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexableField;
+import org.apache.lucene.index.MultiFields;
+import org.apache.lucene.util.Bits;
 import org.sustudio.concise.core.Workspace;
 import org.sustudio.concise.core.corpus.importer.ConciseField;
 
@@ -18,6 +20,7 @@ import org.sustudio.concise.core.corpus.importer.ConciseField;
 public class DocumentIterator implements Iterator<ConciseDocument>, Iterable<ConciseDocument> {
 	
 	private final IndexReader reader;
+	private final Bits liveDocs;
 	private int docID = 0;
 	private ConciseDocument nextDocument;
 	
@@ -27,6 +30,7 @@ public class DocumentIterator implements Iterator<ConciseDocument>, Iterable<Con
 	
 	public DocumentIterator(final IndexReader reader) throws Exception {
 		this.reader = reader;
+		this.liveDocs = MultiFields.getLiveDocs(reader);
 		nextDocument = readNextDocument();
 	}
 
@@ -35,18 +39,19 @@ public class DocumentIterator implements Iterator<ConciseDocument>, Iterable<Con
 		ConciseDocument ccDoc = null;
 		while (docID < reader.maxDoc()) 
 		{				
-			Document doc = reader.document(docID);
-			if (doc == null) {
+			// check if document is deleted
+			// see LUCENE-2600 at https://lucene.apache.org/core/4_0_0/MIGRATE.html
+			if (liveDocs != null && !liveDocs.get(docID)) {
 				docID++;
 				continue;
 			}
 			
-			
+			Document doc = reader.document(docID);
 			ccDoc = new ConciseDocument();
 			ccDoc.docID = docID;
 			ccDoc.title = doc.get(ConciseField.TITLE.field());
 			ccDoc.filepath = doc.get(ConciseField.FILEPATH.field());
-			//ccDoc.isTokenized = doc.get(CCField.IS_TOKENIZED.field());
+			//ccDoc.isTokenized = doc.get(ConciseField.IS_TOKENIZED.field());
 			
 			/*
 			StringReader content = new StringReader(doc.get(ConciseField.CONTENT.field()));

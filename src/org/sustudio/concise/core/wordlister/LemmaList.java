@@ -57,4 +57,20 @@ public class LemmaList extends ArrayList<Lemma> {
 		return null;
 	}
 	
+	/**
+	 * 忽略大小寫，傳回含有 form 的 lemma 物件。如果找不到，則傳回 null
+	 * @param form
+	 * @return
+	 */
+	public Lemma getLemmaWithFormIgnoreCase(String formWord) {
+		Iterator<Lemma> iter = iterator();
+		while (iter.hasNext()) {
+			Lemma lemma = iter.next();
+			if ( lemma.ignoreCaseContainsForm(formWord) ) {
+				return lemma;
+			}
+		}
+		return null;
+	}
+	
 }
