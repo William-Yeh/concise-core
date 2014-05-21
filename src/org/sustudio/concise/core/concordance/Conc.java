@@ -57,8 +57,6 @@ public class Conc {
 		
 		query = parser.parse(queryStr);
 		query = searcher.rewrite(query);
-		
-		
 	}
 	
 	/**
@@ -69,6 +67,14 @@ public class Conc {
 	public void setSpanSize(int left, int right) {
 		this.left_span_size = left;
 		this.right_span_size = right;
+	}
+	
+	/**
+	 * 傳回 Query 物件
+	 * @return
+	 */
+	public Query getQuery() {
+		return query;
 	}
 	
 	public ScoreDoc[] hitDocs() throws Exception {
