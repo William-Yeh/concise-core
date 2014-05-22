@@ -111,7 +111,12 @@ public class Word implements Serializable, Cloneable {
 		return word + "\t docFreq:" + docFreq + "\t totalTermFreq:" + totalTermFreq + " " + getChildrenToString(); 
 	}
 	
-	protected Word clone() throws CloneNotSupportedException {
-		return (Word) super.clone();
+	protected Word clone() {
+		try {
+			return (Word) super.clone();
+		} catch (CloneNotSupportedException e) {
+			e.printStackTrace();  // 應該不會出錯
+		}
+		return null;
 	}
 }

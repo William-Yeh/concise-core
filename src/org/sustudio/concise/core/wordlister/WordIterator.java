@@ -171,7 +171,8 @@ public class WordIterator implements Iterator<Word>, Iterable<Word> {
 
 	/** Do nothing. Do not use this one. */
 	public void remove() {
-		// Do nothing
+		throw new UnsupportedOperationException(
+				getClass().getSimpleName() + " cannot perform remove()");
 	}
 	
 }
