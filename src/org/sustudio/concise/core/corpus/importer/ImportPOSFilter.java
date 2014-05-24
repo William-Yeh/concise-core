@@ -6,15 +6,17 @@ import org.apache.lucene.analysis.TokenFilter;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 import org.apache.lucene.analysis.tokenattributes.OffsetAttribute;
+import org.apache.lucene.analysis.tokenattributes.PositionIncrementAttribute;
 import org.sustudio.concise.core.Config;
 import org.sustudio.concise.core.concordance.PartOfSpeechAttribute;
 
 public class ImportPOSFilter extends TokenFilter {
 	
 	private final String posSeperator;
-	private CharTermAttribute termAttr;
-	private OffsetAttribute offAttr;
-	private PartOfSpeechAttribute posAttr;
+	private CharTermAttribute termAttr = addAttribute(CharTermAttribute.class);
+	private OffsetAttribute offAttr = addAttribute(OffsetAttribute.class);
+	private PartOfSpeechAttribute posAttr = addAttribute(PartOfSpeechAttribute.class);
+	private PositionIncrementAttribute posIncrAttr = addAttribute(PositionIncrementAttribute.class);
 	
 	private boolean hasOriginal = false;
 	
@@ -25,9 +27,6 @@ public class ImportPOSFilter extends TokenFilter {
 	public ImportPOSFilter(TokenStream input, final String posSeperator) {
 		super(input);
 		this.posSeperator = posSeperator;
-		termAttr = input.addAttribute(CharTermAttribute.class);
-		offAttr = input.addAttribute(OffsetAttribute.class);
-		posAttr = input.addAttribute(PartOfSpeechAttribute.class);
 	}
 	
 	public boolean incrementToken() throws IOException {
@@ -43,10 +42,12 @@ public class ImportPOSFilter extends TokenFilter {
 				int startOffset = offAttr.startOffset();
 				offAttr.setOffset(startOffset, startOffset + splitterPosition);
 			}
+			posIncrAttr.setPositionIncrement(0);  // used in phrase searching
 			hasOriginal = false;
 			return true;
 		}
 		if (input.incrementToken()) {
+			posIncrAttr.setPositionIncrement(1);
 			hasOriginal = true;
 			return true;
 		}

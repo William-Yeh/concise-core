@@ -50,25 +50,4 @@ public class ContentField extends Field {
 		super(name, stream, TYPE_NOT_STORED);
 	}
 	
-	/*
-	static FieldType type = new FieldType();
-	static {
-		type.setIndexed(true);
-		type.setStored(true); // it needs to be stored to be properly highlighted
-		type.setTokenized(true);
-		type.setIndexOptions(FieldInfo.IndexOptions.DOCS_AND_FREQS_AND_POSITIONS_AND_OFFSETS); // necessary for PostingsHighlighter
-	}
-	
-	public ContentField(String name, Reader reader) {
-		super(name, reader, type);
-	}
-	
-	public ContentField(String name, String value) {
-		super(name, value, type);
-	}
-	
-	public ContentField(String name, TokenStream stream) {
-		super(name, stream, type);
-	}
-	*/ 
 }
