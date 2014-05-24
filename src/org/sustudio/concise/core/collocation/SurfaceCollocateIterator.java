@@ -113,7 +113,7 @@ public class SurfaceCollocateIterator extends CollocateIterator {
 				TermsEnum te = terms.iterator(null);
 				while (te.next() != null) {
 					String word = te.term().utf8ToString();
-					if (word.startsWith(Conc.preNodeTag)) {
+					if (word.startsWith(Conc.preNodeTag) || word.endsWith(Conc.postNodeTag)) {
 						word = word.replace(Conc.preNodeTag, "").replace(Conc.postNodeTag, "");
 						BytesRef node = new BytesRef(word);
 						nodesToSkip.add(node);

@@ -52,5 +52,4 @@ public class ConciseTermsEnum extends FilteredTermsEnum {
 		}
 		return AcceptStatus.NO;
 	}
-
 }
