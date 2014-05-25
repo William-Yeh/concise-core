@@ -3,7 +3,6 @@ package org.sustudio.concise.core.corpus.importer;
 import java.util.ArrayList;
 
 import org.apache.lucene.analysis.Analyzer;
-import org.apache.lucene.analysis.cn.smart.SmartChineseAnalyzer;
 import org.apache.lucene.analysis.core.WhitespaceAnalyzer;
 import org.sustudio.concise.core.CCPrefs;
 import org.sustudio.concise.core.Config;
@@ -13,7 +12,7 @@ public enum AnalyzerEnum {
 
 	MMSegComplex ("MMSeg Complex"),
 	MMSegSimple	 ("MMSeg Simple"),
-	SmartChinese ("Smart Chinese (Simplified Chinese)"),
+	//SmartChinese ("Smart Chinese (Simplified Chinese)"),
 	Whitespace   ("Whitespace");
 	
 	private String label;
@@ -46,7 +45,7 @@ public enum AnalyzerEnum {
 				analyzer = new MMSegAnalyzer(MMSeg.Simple, CCPrefs.userDictionaries);
 			}
 			return analyzer;
-		
+		/*
 		case SmartChinese:		
 			if (analyzer == null ||
 				!(analyzer instanceof SmartChineseAnalyzer))
@@ -54,7 +53,7 @@ public enum AnalyzerEnum {
 				analyzer = new SmartChineseAnalyzer(Config.LUCENE_VERSION);
 			}
 			return analyzer;
-		
+		*/
 		case Whitespace:		
 			if (analyzer == null ||
 				!(analyzer instanceof WhitespaceAnalyzer))
