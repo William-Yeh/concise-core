@@ -83,7 +83,6 @@ public class TemporaryCollocateIndexer {
 	public void addDocumentWithTextualSentence(String sentence, String preTag, String postTag) throws Exception {
 		Document doc = new Document();
 		if (sentence.contains(preTag) && sentence.contains(postTag)) {
-			sentence = sentence.replace(preTag, "").replace(postTag, "");
 			doc.add(new TextField(CIField.NODE.name(), sentence, Store.NO));
 		}
 		doc.add(new TextField(CIField.TEXT.name(), sentence, Store.NO));

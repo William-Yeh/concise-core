@@ -9,6 +9,9 @@ import org.apache.lucene.store.RAMDirectory;
 
 public abstract class CollocateIterator implements Iterator<Collocate>, Iterable<Collocate> {
 
+	/** node separator (for phrase search) */
+	protected static final String _NODE_SEPARATOR = "_NODE_";
+	
 	public Directory indexDirectory = new RAMDirectory();
 	protected final Map<CollocateMeasurement, Double> filters;
 	protected Collocate nextCollocate;

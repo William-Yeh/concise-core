@@ -50,8 +50,6 @@ public class SurfaceCollocateIterator extends CollocateIterator {
 	/** sample sum total term freq */
 	private long Ns;
 	
-	private static final String _NODE_SEPARATOR = "_NODE_";
-	
 	public SurfaceCollocateIterator(Conc conc) throws Exception {
 		this(conc, null);
 	}
@@ -83,7 +81,7 @@ public class SurfaceCollocateIterator extends CollocateIterator {
 					nodeEndOffset = sb.indexOf(Conc.postNodeTag, nodeOffset);
 					ConcLine concLine = new ConcLine();
 					String node = sb.substring(nodeOffset + Conc.preNodeTag.length(), nodeEndOffset).trim();
-					node = node.replace(" ", _NODE_SEPARATOR);
+					node = node.replace(" ", CollocateIterator._NODE_SEPARATOR);
 					concLine.setNode(node);
 					concLine.setLeft(sb.substring(0, nodeOffset).trim());
 					concLine.setRight(sb.substring(nodeEndOffset + Conc.postNodeTag.length(), sb.length()).trim());
@@ -175,7 +173,7 @@ public class SurfaceCollocateIterator extends CollocateIterator {
 			
 			// 這個會輸出 <node> 的標簽，暫時不用
 			//Collocate collocate = new Collocate(term.utf8ToString(), fn, fc, fnc, Nc, Ns);
-			Collocate collocate = new Collocate(word.replace(_NODE_SEPARATOR, " "), fn, fc, fnc, Nc, Ns);
+			Collocate collocate = new Collocate(word.replace(CollocateIterator._NODE_SEPARATOR, " "), fn, fc, fnc, Nc, Ns);
 			
 			collocate.setLeftFreq( reader.totalTermFreq(new Term(CIField.LEFT.name(),  word)));
 			collocate.setRightFreq(reader.totalTermFreq(new Term(CIField.RIGHT.name(), word)));

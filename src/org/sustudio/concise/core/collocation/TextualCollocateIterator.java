@@ -97,17 +97,20 @@ public class TextualCollocateIterator extends CollocateIterator {
 			if (word.startsWith(Conc.preNodeTag) && word.endsWith(Conc.postNodeTag)) {
 				// 因為 node word 在處理的時候會包上tag，所以找 TEXT 那邊應該會找不到，
 				// 這時候要去掉 tag 去找
-				BytesRef node = new BytesRef(word.replace(Conc.preNodeTag, "").replace(Conc.postNodeTag, ""));
+				BytesRef node = new BytesRef(word.replace(Conc.preNodeTag, "").replace(Conc.postNodeTag, "").replace(CollocateIterator._NODE_SEPARATOR, " "));
 				collocateMarginalFrequency += textTermsEnum.seekExact(node) ? textTermsEnum.docFreq() : 0;
 			}
 			
 			// 這邊不需要再處理 Lemma 的問題
 			// 應該都已經透過 Highlighter 的 Encoder 處理了
-			Collocate collocate =  new Collocate(word,
+			Collocate collocate =  new Collocate(word.replace(Conc.preNodeTag, "").replace(Conc.postNodeTag, "").replace(CollocateIterator._NODE_SEPARATOR, " "),
 												 coOccurrenceCount,
 												 nodeMarginalFrequency,
 												 collocateMarginalFrequency,
 												 numberOfTexts);
+			if (word.startsWith(Conc.preNodeTag) && word.endsWith(Conc.postNodeTag)) {
+				collocate.setNodeFreq(nodeMarginalFrequency);
+			}
 			
 			// check filters
 			boolean skip = false;

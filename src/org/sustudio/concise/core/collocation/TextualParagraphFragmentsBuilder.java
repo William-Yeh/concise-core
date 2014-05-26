@@ -110,9 +110,11 @@ public class TextualParagraphFragmentsBuilder extends SimpleFragmentsBuilder {
     				}
 					buffer
 					.append( encoder.encodeText( source.substring(paraStart, to.getStartOffset() - startOffset) ) )
-					.append( getPreTag( preTags, 0 ) )
-		    		.append( encoder.encodeText( source.substring( to.getStartOffset() - startOffset, to.getEndOffset() - startOffset + posOffset ) ) )
-		    		.append( getPreTag( postTags, 0 ) );
+					.append( getPreTag( preTags, 0 ) );
+		    		String node = encoder.encodeText( source.substring( to.getStartOffset() - startOffset, to.getEndOffset() - startOffset + posOffset ) ); 
+		    		buffer
+					.append( node.trim().replace(" ", CollocateIterator._NODE_SEPARATOR) )
+		    		.append( getPostTag( postTags, 0 ) + " " );
 					paraStart = to.getEndOffset() - startOffset + posOffset;
 				}
 	    		

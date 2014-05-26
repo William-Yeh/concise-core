@@ -31,7 +31,7 @@ public class CCPrefs implements Serializable {
 	public static String POS_TAGGER_SEPARATOR = DEFAULT_POS_TAGGER_SEPARATOR;
 	
 	/** enable lowercase */
-	public static boolean LOWERCASE_ENABLED = true;
+	public static boolean LOWERCASE_ENABLED = false;
 	
 	
 	/** 顯示用的詞性分隔標籤 （預設是 _POS_） */
