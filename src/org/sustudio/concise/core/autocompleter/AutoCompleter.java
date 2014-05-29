@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.Term;
@@ -40,6 +41,14 @@ public class AutoCompleter {
 		if (completer != null) {
 			completer.close();
 		}
+	}
+	
+	public static AutoCompleter[] getInstances() {
+		ArrayList<AutoCompleter> instances = new ArrayList<AutoCompleter>();
+		for (Map.Entry<IndexReader, AutoCompleter> entry : map.entrySet()) {
+			instances.add(entry.getValue());
+		}
+		return instances.toArray(new AutoCompleter[0]);
 	}
 	
 	
