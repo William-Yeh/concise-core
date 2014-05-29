@@ -60,7 +60,9 @@ public class DocumentWordIterator implements Iterator<Word>, Iterable<Word> {
 								MultiFields.getLiveDocs(reader), 
 								ConciseField.CONTENT.field(), 
 								lookupWord.getTerm().bytes());
-			if (de.advance(document.docID) != DocsEnum.NO_MORE_DOCS) {
+			if (de.advance(document.docID) != DocsEnum.NO_MORE_DOCS &&
+				de.docID() == document.docID)
+			{
 				nextWord = new Word(lookupWord.word, 1L, de.freq());
 				addChildren(lookupWord, nextWord); // add lemma forms as children
 				return;

@@ -9,7 +9,7 @@ import java.util.List;
 
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.Term;
-import org.apache.lucene.search.spell.LuceneDictionary;
+import org.apache.lucene.search.spell.Dictionary;
 import org.apache.lucene.search.suggest.Lookup;
 import org.apache.lucene.search.suggest.tst.TSTLookup;
 import org.sustudio.concise.core.corpus.importer.ConciseField;
@@ -26,10 +26,10 @@ public class AutoCompleter {
 
 	private static HashMap<IndexReader, AutoCompleter> map = new HashMap<IndexReader, AutoCompleter>();
 	
-	public static AutoCompleter getInstanceFor(final IndexReader reader) throws IOException {
+	public static AutoCompleter getInstanceFor(final IndexReader reader, boolean showPartOfSpeech) throws IOException {
 		AutoCompleter completer = map.get(reader);
 		if (completer == null) {
-			completer = new AutoCompleter(reader);
+			completer = new AutoCompleter(reader, showPartOfSpeech);
 			map.put(reader, completer);
 		}
 		return completer;
@@ -45,11 +45,20 @@ public class AutoCompleter {
 	
 	private final IndexReader reader;
 	private Lookup autoCompleter;
-	private LuceneDictionary dict;
+	private Dictionary dict;
+	private boolean showPartOfSpeech;
 	
-	public AutoCompleter(final IndexReader reader) throws IOException {
+	public AutoCompleter(final IndexReader reader, boolean showPartOfSpeech) throws IOException {
 		this.reader = reader;
+		this.showPartOfSpeech = showPartOfSpeech;
 		init();
+	}
+	
+	public void setShowPartOfSpeech(boolean show) throws IOException {
+		if (showPartOfSpeech != show) {
+			close();
+			init();
+		}
 	}
 	
 	public List<Word> lookup(CharSequence text, int number) throws IOException {
@@ -88,7 +97,7 @@ public class AutoCompleter {
 		{
 			if (reader != null) 
 			{
-				dict = new LuceneDictionary(reader, ConciseField.CONTENT.field());
+				dict = new ConciseDictionary(reader, ConciseField.CONTENT.field(), showPartOfSpeech);
 				
 				if (autoCompleter == null) {
 					autoCompleter = new TSTLookup();
