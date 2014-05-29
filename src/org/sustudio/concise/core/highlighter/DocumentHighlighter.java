@@ -6,7 +6,6 @@ import java.io.Reader;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.Tokenizer;
-import org.apache.lucene.analysis.core.WhitespaceAnalyzer;
 import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.queryparser.classic.QueryParser;
 import org.apache.lucene.search.MultiTermQuery;
@@ -15,6 +14,7 @@ import org.apache.lucene.search.vectorhighlight.BaseFragmentsBuilder;
 import org.sustudio.concise.core.CCPrefs;
 import org.sustudio.concise.core.Config;
 import org.sustudio.concise.core.Workspace;
+import org.sustudio.concise.core.concordance.ConciseQueryAnalyzer;
 import org.sustudio.concise.core.concordance.LineAndWhitespaceTokenizer;
 import org.sustudio.concise.core.concordance.PartOfSpeechFilter;
 import org.sustudio.concise.core.concordance.PartOfSpeechSeparatorFilter;
@@ -44,7 +44,7 @@ public class DocumentHighlighter extends Highlighter {
 	{
 		QueryParser parser = new QueryParser(Config.LUCENE_VERSION, 
 											 ConciseField.CONTENT.field(), 
-											 new WhitespaceAnalyzer(Config.LUCENE_VERSION)); 
+											 new ConciseQueryAnalyzer());
 		parser.setMultiTermRewriteMethod(MultiTermQuery.SCORING_BOOLEAN_QUERY_REWRITE);
 		parser.setAllowLeadingWildcard(true);
 		
