@@ -33,6 +33,7 @@ public class AutoCompleter {
 			completer = new AutoCompleter(reader, showPartOfSpeech);
 			map.put(reader, completer);
 		}
+		completer.setShowPartOfSpeech(showPartOfSpeech);
 		return completer;
 	}
 	
@@ -65,6 +66,7 @@ public class AutoCompleter {
 	
 	public void setShowPartOfSpeech(boolean show) throws IOException {
 		if (showPartOfSpeech != show) {
+			showPartOfSpeech = show;
 			close();
 			init();
 		}
@@ -101,20 +103,17 @@ public class AutoCompleter {
 	
 	
 	private void init() throws IOException {
-		
 		if (dict == null) 
 		{
 			if (reader != null) 
 			{
-				dict = new ConciseDictionary(reader, ConciseField.CONTENT.field(), showPartOfSpeech);
-				
+				dict = new ConciseDictionary(reader, showPartOfSpeech);
 				if (autoCompleter == null) {
 					autoCompleter = new TSTLookup();
 				}
 				autoCompleter.build(dict);
 			}
 		}
-		
 	}
 
 	

@@ -9,6 +9,7 @@ import org.apache.lucene.index.TermsEnum;
 import org.apache.lucene.search.spell.Dictionary;
 import org.apache.lucene.search.suggest.InputIterator;
 import org.sustudio.concise.core.CCPrefs;
+import org.sustudio.concise.core.corpus.importer.ConciseField;
 import org.sustudio.concise.core.wordlister.ConciseTermsEnum;
 
 /**
@@ -18,22 +19,20 @@ import org.sustudio.concise.core.wordlister.ConciseTermsEnum;
 public class ConciseDictionary implements Dictionary {
 
 	private IndexReader reader;
-	private String field;
 	private boolean showPartOfSpeech;
 	
 	/**
 	 * Creates a new Dictionary, pulling source terms from
 	 * the specified <code>field</code> in the provided <code>reader</code>.
 	 */
-	public ConciseDictionary(IndexReader reader, String field, boolean showPartOfSpeech) {
+	public ConciseDictionary(IndexReader reader, boolean showPartOfSpeech) {
 		this.reader = reader;
-		this.field = field;
 		this.showPartOfSpeech = showPartOfSpeech;
 	}
 	
 	@Override
 	public InputIterator getEntryIterator() throws IOException {
-		final Terms terms = MultiFields.getTerms(reader, field);
+		final Terms terms = MultiFields.getTerms(reader, ConciseField.CONTENT.field());
 		if (terms != null) {
 			TermsEnum termsEnum = new ConciseTermsEnum(terms.iterator(null), showPartOfSpeech, CCPrefs.LEMMA_ENABLED);
 			return new InputIterator.InputIteratorWrapper(termsEnum);
