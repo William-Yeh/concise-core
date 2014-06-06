@@ -87,7 +87,7 @@ public class DocumentWriter extends IndexWriter {
 	 * @param docs
 	 * @throws IOException 
 	 */
-	public void addConciseDocuments(ConciseDocument...docs) throws IOException {
+	public void addConciseDocuments(Iterable<ConciseDocument> docs) throws IOException {
 		for (ConciseDocument cd : docs) {
 			// copy file to original documents dir
 			File targetFile = ConciseFileUtils.getUniqueFile(

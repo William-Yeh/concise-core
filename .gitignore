@@ -1,7 +1,7 @@
+/target
 bin
 .metatdata
 .settings
 .DS_Store
 src/org/sustudio/concise/core/demo
-target
 
