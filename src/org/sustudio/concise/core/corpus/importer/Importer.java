@@ -17,6 +17,7 @@ import org.apache.lucene.document.StringField;
 import org.apache.lucene.document.Field.Store;
 import org.apache.tika.Tika;
 import org.sustudio.concise.core.CCPrefs;
+import org.sustudio.concise.core.ConciseFile;
 import org.sustudio.concise.core.Config;
 import org.sustudio.concise.core.Workspace;
 import org.sustudio.concise.core.corpus.DocumentWriter;
@@ -46,7 +47,7 @@ public class Importer extends DocumentWriter {
 	 * @throws IOException
 	 */
 	public Importer(Workspace workspace) throws IOException {
-		this(workspace, workspace.getIndexDir());
+		this(workspace.getIndexDir());
 	}
 	
 	/**
@@ -55,8 +56,8 @@ public class Importer extends DocumentWriter {
 	 * @param indexDir	reference corpus 的路徑，使用 {@link Workspace#getIndexDirRef()}
 	 * @throws IOException
 	 */
-	public Importer(Workspace workspace, File indexDir) throws IOException {
-		super(workspace, indexDir);
+	public Importer(ConciseFile indexDir) throws IOException {
+		super(indexDir);
 	}
 
 	/**

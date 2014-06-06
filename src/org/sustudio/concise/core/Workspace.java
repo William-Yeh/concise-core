@@ -19,11 +19,11 @@ import org.apache.lucene.store.FSDirectory;
 public class Workspace {
 
 	private File workpath;
-	private File indexDir;
-	private File indexDirRef;
-	private File dicDir;
-	private File originalDocs;
-	private File originalRefs;
+	private ConciseFile indexDir;
+	private ConciseFile indexDirRef;
+	private ConciseFile dicDir;
+	private ConciseFile originalDocs;
+	private ConciseFile originalRefs;
 	private IndexReader indexReader;
 	private IndexReader indexReaderRef;
 	private Directory indexDirectory;
@@ -52,8 +52,8 @@ public class Workspace {
 	 * create default folder if not exists
 	 * @param folderName folder name (relative to workpath) 
 	 */
-	private File createFolderIfNotExists(String folderName) {
-		File folder = new File(workpath, folderName);
+	private ConciseFile createFolderIfNotExists(String folderName) {
+		ConciseFile folder = new ConciseFile(workpath, folderName, this);
 		if (!folder.exists()) {
 			folder.mkdir();
 		}
@@ -61,8 +61,8 @@ public class Workspace {
 	}
 	
 	/**
-	 * 傳回Workspace的路徑
-	 * @return Workspace的路徑
+	 * 傳回Workspace的 File 物件
+	 * @return Workspace的 File 物件
 	 */
 	public File getFile() {
 		return workpath;
@@ -151,7 +151,7 @@ public class Workspace {
 	 * 傳回儲存 index 的 {@link File} 物件
 	 * @return 儲存 index 的 {@link File} 物件
 	 */
-	public File getIndexDir() {
+	public ConciseFile getIndexDir() {
 		return indexDir;
 	}
 	
@@ -159,7 +159,7 @@ public class Workspace {
 	 * 傳回儲存 index (reference) 的 {@link File} 物件
 	 * @return 儲存 index (reference) 的 {@link File} 物件
 	 */
-	public File getIndexDirRef() {
+	public ConciseFile getIndexDirRef() {
 		return indexDirRef;
 	}
 	
@@ -167,7 +167,7 @@ public class Workspace {
 	 * 傳回儲存字典（分詞用）的 {@link File} 物件
 	 * @return 儲存字典（分詞用）的 {@link File} 物件
 	 */
-	public File getDictionaryDir() {
+	public ConciseFile getDictionaryDir() {
 		return dicDir;
 	}
 	
@@ -190,7 +190,7 @@ public class Workspace {
 	 * 傳回原始文件檔案目錄
 	 * @return 原始文件檔案目錄
 	 */
-	public File getOriginalDocFolder() {
+	public ConciseFile getOriginalDocFolder() {
 		return originalDocs;
 	}
 	
@@ -198,7 +198,7 @@ public class Workspace {
 	 * 傳回原始參照文件檔案目錄
 	 * @return 原始參照文件檔案目錄
 	 */
-	public File getOriginalRefFolder() {
+	public ConciseFile getOriginalRefFolder() {
 		return originalRefs;
 	}
 }

@@ -11,6 +11,7 @@ import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.store.FSDirectory;
+import org.sustudio.concise.core.ConciseFile;
 import org.sustudio.concise.core.Config;
 import org.sustudio.concise.core.Workspace;
 import org.sustudio.concise.core.corpus.importer.ConciseField;
@@ -25,18 +26,18 @@ import org.sustudio.concise.core.corpus.importer.ImportPOSAnalyzer;
 public class DocumentWriter extends IndexWriter {
 	
 	protected final Workspace workspace;
-	protected final File indexDir;
-	protected final File originalFolder;
+	protected final ConciseFile indexDir;
+	protected final ConciseFile originalFolder;
 	
 	public DocumentWriter(Workspace workspace) throws IOException {
-		this(workspace, workspace.getIndexDir());
+		this(workspace.getIndexDir());
 	}
 	
-	public DocumentWriter(Workspace workspace, File indexDir) throws IOException {
+	public DocumentWriter(ConciseFile indexDir) throws IOException {
 		super(FSDirectory.open(indexDir), 
 			  new IndexWriterConfig(Config.LUCENE_VERSION,
 					  				new ImportPOSAnalyzer(Config.LUCENE_VERSION)));
-		this.workspace = workspace;
+		this.workspace = indexDir.getWorkspace();
 		this.indexDir = indexDir;
 		if (indexDir.equals(workspace.getIndexDir())) {
 			workspace.closeIndexReader();
