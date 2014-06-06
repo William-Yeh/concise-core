@@ -22,6 +22,8 @@ public class Workspace {
 	private File indexDir;
 	private File indexDirRef;
 	private File dicDir;
+	private File originalDocs;
+	private File originalRefs;
 	private IndexReader indexReader;
 	private IndexReader indexReaderRef;
 	private Directory indexDirectory;
@@ -36,21 +38,26 @@ public class Workspace {
 			workpath.mkdir();
 		}
 		
-		indexDir = new File(workpath, Config.INDEX_FOLDER);
-		if (!indexDir.exists()) {
-			indexDir.mkdir();
-		}
-		indexDirRef = new File(workpath, Config.REF_INDEX_FOLDER);
-		if (!indexDirRef.exists()) {
-			indexDirRef.mkdir();
-		}
-		dicDir = new File(workpath, Config.DIC_FOLDER);
-		if (!dicDir.exists()) {
-			dicDir.mkdir();
-		}
-		
+		// create default folders
+		indexDir 		= createFolderIfNotExists(Config.INDEX_FOLDER);
+		indexDirRef		= createFolderIfNotExists(Config.REF_INDEX_FOLDER);
+		dicDir 			= createFolderIfNotExists(Config.DIC_FOLDER);
+		originalDocs	= createFolderIfNotExists(Config.ORIGINAL_DOC_FOLDER);
+		originalRefs	= createFolderIfNotExists(Config.ORIGINAL_REF_FOLDER);
 		
 		openIndexReader();
+	}
+	
+	/**
+	 * create default folder if not exists
+	 * @param folderName folder name (relative to workpath) 
+	 */
+	private File createFolderIfNotExists(String folderName) {
+		File folder = new File(workpath, folderName);
+		if (!folder.exists()) {
+			folder.mkdir();
+		}
+		return folder;
 	}
 	
 	/**
@@ -165,8 +172,8 @@ public class Workspace {
 	}
 	
 	/**
-	 * 傳回自訂的詞典檔案
-	 * @return 自訂的詞典檔案
+	 * 傳回自訂的詞典檔案目錄
+	 * @return 自訂的詞典檔案目錄
 	 */
 	public File[] getDictionaryFiles() {
 		return dicDir.listFiles(new FileFilter() {
@@ -177,5 +184,21 @@ public class Workspace {
 			}
 			
 		});
+	}
+	
+	/**
+	 * 傳回原始文件檔案目錄
+	 * @return 原始文件檔案目錄
+	 */
+	public File getOriginalDocFolder() {
+		return originalDocs;
+	}
+	
+	/**
+	 * 傳回原始參照文件檔案目錄
+	 * @return 原始參照文件檔案目錄
+	 */
+	public File getOriginalRefFolder() {
+		return originalRefs;
 	}
 }

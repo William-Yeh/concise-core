@@ -4,14 +4,15 @@ import java.io.File;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
+import java.util.StringTokenizer;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.core.WhitespaceAnalyzer;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.IntField;
-import org.apache.lucene.document.LongField;
 import org.apache.lucene.document.StringField;
 import org.apache.lucene.document.Field.Store;
 import org.apache.tika.Tika;
@@ -114,7 +115,10 @@ public class Importer extends DocumentWriter {
 		paraBuffer.setLength(0);
 		paraBuffer = null;
 		
-		writeDocument(file, isTokenized, buffer.toString(), countParas);
+		StringTokenizer st = new StringTokenizer(buffer.toString(), " \n");
+		int numWords = st.countTokens();
+		
+		writeDocument(file, isTokenized, buffer.toString(), numWords, countParas);
 		
 		buffer.setLength(0);
 		buffer = null;
@@ -146,13 +150,37 @@ public class Importer extends DocumentWriter {
 	}
 	
 	
-	protected Document writeDocument(File file, boolean isTokenized, String content, int numParas) throws IOException {
+	protected Document writeDocument(File sourceFile, boolean isTokenized, String content, int numWords, int numParas) throws IOException {
+		// copy sourceFile to ORIGINAL folder
+		File targetFile = ConciseFileUtils.getUniqueFile(
+				new File(originalFolder, sourceFile.getName()));
+		FileUtils.copyFile(sourceFile, targetFile);
+		
 		Document doc = new Document();
-		doc.add(new StringField(ConciseField.TITLE.field(), file.getName(), Store.YES));
-		doc.add(new ContentField(ConciseField.CONTENT.field(), content, Store.YES));
-		doc.add(new StringField(ConciseField.FILEPATH.field(), file.getPath(), Store.YES));
-		doc.add(new LongField(ConciseField.NUM_PARAGRAPHS.field(), numParas, Store.YES));
-		doc.add(new IntField(ConciseField.IS_TOKENIZED.field(), isTokenized ? 1 : 0, Store.YES));
+		doc.add(new StringField(
+						ConciseField.TITLE.field(), 
+						sourceFile.getName(), 
+						Store.YES));
+		doc.add(new ContentField(
+						ConciseField.CONTENT.field(), 
+						content, 
+						Store.YES));
+		doc.add(new StringField(
+						ConciseField.FILENAME.field(),
+						targetFile.getName(),
+						Store.YES));
+		doc.add(new IntField(
+						ConciseField.NUM_WORDS.field(),
+						numWords, 
+						Store.YES));
+		doc.add(new IntField(
+						ConciseField.NUM_PARAGRAPHS.field(), 
+						numParas, 
+						Store.YES));
+		doc.add(new IntField(
+						ConciseField.IS_TOKENIZED.field(),
+						isTokenized ? 1 : 0,
+						Store.YES));
 		
 		addDocument(doc);
 		fileCount++;

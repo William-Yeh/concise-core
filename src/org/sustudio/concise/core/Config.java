@@ -25,6 +25,12 @@ public class Config {
 	/** Dictionary Folder */
 	public static final String DIC_FOLDER = "dic.concisedic";
 	
+	/** Original Documents folder */
+	public static final String ORIGINAL_DOC_FOLDER = "Original Documents";
+	
+	/** Original Reference Documents folder */
+	public static final String ORIGINAL_REF_FOLDER = "Original References";
+	
 	/** default part-of-speech separator (for index) */
 	public static final String SYSTEM_POS_SEPERATOR = "_POS_";
 }

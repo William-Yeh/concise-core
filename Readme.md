@@ -1,1 +1,1 @@
-concise-core-0.3.6
+concise-core-0.3.7
