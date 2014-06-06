@@ -10,7 +10,7 @@ import org.apache.lucene.util.Version;
  */
 public class Config {
 
-	public static final String VERSION = "0.3.6";
+	public static final String VERSION = "0.3.7";
 	
 	
 	/** current Lucene version */
