@@ -14,6 +14,7 @@ import org.apache.lucene.store.FSDirectory;
 import org.sustudio.concise.core.ConciseFile;
 import org.sustudio.concise.core.Config;
 import org.sustudio.concise.core.Workspace;
+import org.sustudio.concise.core.Workspace.INDEX;
 import org.sustudio.concise.core.corpus.importer.ConciseField;
 import org.sustudio.concise.core.corpus.importer.ConciseFileUtils;
 import org.sustudio.concise.core.corpus.importer.ImportPOSAnalyzer;
@@ -26,35 +27,28 @@ import org.sustudio.concise.core.corpus.importer.ImportPOSAnalyzer;
 public class DocumentWriter extends IndexWriter {
 	
 	protected final Workspace workspace;
+	protected final INDEX indexType;
 	protected final ConciseFile indexDir;
 	protected final ConciseFile originalFolder;
 	
 	public DocumentWriter(Workspace workspace) throws IOException {
-		this(workspace.getIndexDir());
+		this(workspace, INDEX.DOCUMENT);
 	}
 	
-	public DocumentWriter(ConciseFile indexDir) throws IOException {
-		super(FSDirectory.open(indexDir), 
+	public DocumentWriter(Workspace workspace, INDEX indexType) throws IOException {
+		super(FSDirectory.open(workspace.getIndexDir(indexType)), 
 			  new IndexWriterConfig(Config.LUCENE_VERSION,
 					  				new ImportPOSAnalyzer(Config.LUCENE_VERSION)));
-		this.workspace = indexDir.getWorkspace();
-		this.indexDir = indexDir;
-		if (indexDir.equals(workspace.getIndexDir())) {
-			workspace.closeIndexReader();
-			originalFolder = workspace.getOriginalDocFolder();
-		}
-		else { 
-			workspace.closeIndexReaderRef();
-			originalFolder = workspace.getOriginalRefFolder();
-		}
+		this.workspace = workspace;
+		this.indexType = indexType;
+		this.indexDir = workspace.getIndexDir(indexType);
+		this.originalFolder = workspace.getOriginalDocFolder(indexType);
+		workspace.closeIndexReader(indexType);		
 	}
 	
 	public void close() throws IOException {
 		super.close();
-		if (workspace.getIndexDir().equals(indexDir))
-			workspace.reopenIndexReader();
-		else
-			workspace.reopenIndexReaderRef();
+		workspace.reopenIndexReader(indexType);
 	}
 	
 	

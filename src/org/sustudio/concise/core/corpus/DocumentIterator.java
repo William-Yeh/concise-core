@@ -8,6 +8,7 @@ import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.MultiFields;
 import org.apache.lucene.util.Bits;
 import org.sustudio.concise.core.Workspace;
+import org.sustudio.concise.core.Workspace.INDEX;
 
 /**
  * 顯示語料庫中的文件資訊。
@@ -24,15 +25,12 @@ public class DocumentIterator implements Iterator<ConciseDocument>, Iterable<Con
 	private ConciseDocument nextDocument;
 	
 	public DocumentIterator(Workspace workspace) throws Exception {
-		this(workspace, workspace.getIndexReader());
+		this(workspace, INDEX.DOCUMENT);
 	}
 	
-	public DocumentIterator(Workspace workspace, final IndexReader reader) throws Exception {
-		this.reader = reader;
-		if (workspace.getIndexReader().equals(reader))
-			originalFolder = workspace.getOriginalDocFolder();
-		else
-			originalFolder = workspace.getOriginalRefFolder();
+	public DocumentIterator(Workspace workspace, INDEX indexType) throws Exception {
+		this.reader = workspace.getIndexReader(indexType);
+		this.originalFolder = workspace.getOriginalDocFolder(indexType);
 		this.liveDocs = MultiFields.getLiveDocs(reader);
 		nextDocument = readNextDocument();
 	}

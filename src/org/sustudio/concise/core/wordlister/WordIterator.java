@@ -14,6 +14,7 @@ import org.apache.lucene.search.Query;
 import org.sustudio.concise.core.CCPrefs;
 import org.sustudio.concise.core.Config;
 import org.sustudio.concise.core.Workspace;
+import org.sustudio.concise.core.Workspace.INDEX;
 import org.sustudio.concise.core.concordance.AllDocsCollector;
 import org.sustudio.concise.core.corpus.importer.ConciseField;
 
@@ -33,19 +34,20 @@ public class WordIterator implements Iterator<Word>, Iterable<Word> {
 	 * @throws Exception
 	 */
 	public static long sumTotalTermFreq(Workspace workspace, boolean showPartOfSpeech) throws Exception {
-		return sumTotalTermFreq(workspace.getIndexReader(), showPartOfSpeech);
+		return sumTotalTermFreq(workspace, INDEX.DOCUMENT, showPartOfSpeech);
 	}
 	
 	/**
 	 * 僅計算全部詞彙的數量（用在計算 reference corpus 的時候）
-	 * @param reader
+	 * @param workspace
+	 * @param indexType
 	 * @param showPartOfSpeech
 	 * @return
 	 * @throws Exception
 	 */
-	public static long sumTotalTermFreq(IndexReader reader, boolean showPartOfSpeech) throws Exception {
+	public static long sumTotalTermFreq(Workspace workspace, INDEX indexType, boolean showPartOfSpeech) throws Exception {
 		long sum = 0L;
-		for (Word word : new WordIterator(reader, showPartOfSpeech, true)) {
+		for (Word word : new WordIterator(workspace.getIndexReader(indexType), showPartOfSpeech, true)) {
 			sum += word.getTotalTermFreq();
 		}
 		return sum;
@@ -67,7 +69,7 @@ public class WordIterator implements Iterator<Word>, Iterable<Word> {
 	 * @throws Exception
 	 */
 	public WordIterator(Workspace workspace, boolean showPartOfSpeech) throws Exception {
-		this(workspace.getIndexReader(), showPartOfSpeech);
+		this(workspace, INDEX.DOCUMENT, showPartOfSpeech);
 	}
 	
 	/**
@@ -76,8 +78,8 @@ public class WordIterator implements Iterator<Word>, Iterable<Word> {
 	 * @param showPartOfSpeech
 	 * @throws Exception
 	 */
-	public WordIterator(final IndexReader reader, boolean showPartOfSpeech) throws Exception {
-		this(reader, showPartOfSpeech, false);
+	public WordIterator(Workspace workspace, INDEX indexType, boolean showPartOfSpeech) throws Exception {
+		this(workspace.getIndexReader(indexType), showPartOfSpeech, false);
 	}
 	
 	protected WordIterator(final IndexReader reader, boolean showPartOfSpeech, boolean countSumTotalOnly) throws Exception {

@@ -10,6 +10,7 @@ import org.apache.lucene.index.Terms;
 import org.apache.lucene.index.TermsEnum;
 import org.apache.lucene.util.BytesRef;
 import org.sustudio.concise.core.Workspace;
+import org.sustudio.concise.core.Workspace.INDEX;
 import org.sustudio.concise.core.corpus.ConciseDocument;
 import org.sustudio.concise.core.corpus.importer.ConciseField;
 
@@ -25,14 +26,14 @@ public class WordUtils {
 	 */
 	public static Map<ConciseDocument, Integer> wordFreqByDocs(Workspace workspace, String word, List<ConciseDocument> docs) throws Exception {
 		Map<ConciseDocument, Integer> map = new HashMap<ConciseDocument, Integer>();
-		Terms terms = MultiFields.getTerms(workspace.getIndexReader(), ConciseField.CONTENT.field());
+		Terms terms = MultiFields.getTerms(workspace.getIndexReader(INDEX.DOCUMENT), ConciseField.CONTENT.field());
 		TermsEnum te = terms.iterator(null);
 		if (te.seekExact(new BytesRef(word))) 
 		{	
 			for (ConciseDocument doc : docs) 
 			{
 				int freq = 0;
-				DocsEnum de = te.docs(MultiFields.getLiveDocs(workspace.getIndexReader()), null);
+				DocsEnum de = te.docs(MultiFields.getLiveDocs(workspace.getIndexReader(INDEX.DOCUMENT)), null);
 				if (de.advance(doc.docID) != DocsEnum.NO_MORE_DOCS &&
 					doc.docID == de.docID())
 				{

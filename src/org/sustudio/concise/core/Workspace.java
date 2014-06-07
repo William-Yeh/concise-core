@@ -18,6 +18,16 @@ import org.apache.lucene.store.FSDirectory;
  */
 public class Workspace {
 
+	/** 定義 INDEX 的類型 */
+	public enum INDEX { 
+		/** 語料庫文件 */
+		DOCUMENT, 
+		
+		/** 參照語料庫文件 */
+		REFERENCE,
+		;
+	}
+	
 	private File workpath;
 	private ConciseFile indexDir;
 	private ConciseFile indexDirRef;
@@ -28,6 +38,7 @@ public class Workspace {
 	private IndexReader indexReaderRef;
 	private Directory indexDirectory;
 	private Directory indexDirectoryRef;
+	
 	
 	public Workspace(File workpath) throws IOException {
 		
@@ -45,7 +56,7 @@ public class Workspace {
 		originalDocs	= createFolderIfNotExists(Config.ORIGINAL_DOC_FOLDER);
 		originalRefs	= createFolderIfNotExists(Config.ORIGINAL_REF_FOLDER);
 		
-		openIndexReader();
+		openIndexReader(INDEX.DOCUMENT);
 	}
 	
 	/**
@@ -72,95 +83,98 @@ public class Workspace {
 		return getClass().getSimpleName() + " {" + workpath.toString() + "}";
 	}
 	
-	protected void openIndexReader() throws IOException {
+	protected void openIndexReader(INDEX indexType) throws IOException {
 		try {
-			indexDirectory = FSDirectory.open(indexDir);
-			indexReader = DirectoryReader.open(indexDirectory);
+			switch (indexType) {
+			default:
+			case DOCUMENT:
+				indexDirectory = FSDirectory.open(indexDir);
+				indexReader = DirectoryReader.open(indexDirectory);
+				break;
+				
+			case REFERENCE:
+				indexDirectoryRef = FSDirectory.open(indexDirRef);
+				indexReaderRef = DirectoryReader.open(indexDirectoryRef);
+				break;
+			}
 			
 		} catch (IndexNotFoundException e) {
 			// eat...	
 		}
 	}
 	
-	public IndexReader getIndexReader() throws IOException {
-		if (indexReader == null) {
-			openIndexReader();
-		}
-		return indexReader;
-	}
-	
-	public IndexReader reopenIndexReader() throws IOException {
-		closeIndexReader();
-		openIndexReader();
-		return indexReader;
-	}
-	
-	public void closeIndexReader() throws IOException {
-		if (indexReader != null) { 
-			indexReader.close();
-			indexReader = null;
-		}
-		if (indexDirectory != null) {
-			indexDirectory.close();
-			indexDirectory = null;
-		}
-	}
-	
-	protected void openIndexReaderRef() throws IOException {
-		try {
+	public IndexReader getIndexReader(INDEX indexType) throws IOException {
+		switch (indexType) {
+		default:
+		case DOCUMENT:
+			if (indexReader == null) {
+				openIndexReader(indexType);
+			}
+			return indexReader;
 			
-			indexDirectoryRef = FSDirectory.open(indexDirRef);
-			indexReaderRef = DirectoryReader.open(indexDirectoryRef);
+		case REFERENCE:
+			if (indexReaderRef == null) {
+				openIndexReader(indexType);
+			}
+			return indexReaderRef;
+		}
+	}
+	
+	public IndexReader reopenIndexReader(INDEX indexType) throws IOException {
+		closeIndexReader(indexType);
+		openIndexReader(indexType);
+		switch (indexType) {
+		default:
+		case DOCUMENT:		return indexReader;
+		case REFERENCE:		return indexReaderRef;
+		}
+		
+	}
+	
+	public void closeIndexReader(INDEX indexType) throws IOException {
+		switch (indexType) {
+		default:
+		case DOCUMENT:
+			if (indexReader != null) { 
+				indexReader.close();
+				indexReader = null;
+			}
+			if (indexDirectory != null) {
+				indexDirectory.close();
+				indexDirectory = null;
+			}
+			break;
 			
-		} catch (IndexNotFoundException e) {
-			// eat...
-		}
-	}
-	
-	public IndexReader getIndexReaderRef() throws IOException {
-		if (indexReaderRef == null) {
-			openIndexReaderRef();
-		}
-		return indexReaderRef;
-	}
-	
-	public IndexReader reopenIndexReaderRef() throws IOException {
-		closeIndexReaderRef();
-		openIndexReaderRef();
-		return indexReaderRef;
-	}
-	
-	public void closeIndexReaderRef() throws IOException {
-		if (indexReaderRef != null) { 
-			indexReaderRef.close();
-			indexReaderRef = null;
-		}
-		if (indexDirectoryRef != null) {
-			indexDirectoryRef.close();
-			indexDirectoryRef = null;
+		case REFERENCE:
+			if (indexReaderRef != null) { 
+				indexReaderRef.close();
+				indexReaderRef = null;
+			}
+			if (indexDirectoryRef != null) {
+				indexDirectoryRef.close();
+				indexDirectoryRef = null;
+			}
+			break;
 		}
 	}
 	
 	public void close() throws IOException {
-		closeIndexReader();
-		closeIndexReaderRef();
+		closeIndexReader(INDEX.DOCUMENT);
+		closeIndexReader(INDEX.REFERENCE);
 	}
 	
-	
+
 	/**
 	 * 傳回儲存 index 的 {@link File} 物件
-	 * @return 儲存 index 的 {@link File} 物件
+	 * @param indexType DOCUMENT or REFERENCE
+	 * @return
 	 */
-	public ConciseFile getIndexDir() {
-		return indexDir;
-	}
-	
-	/**
-	 * 傳回儲存 index (reference) 的 {@link File} 物件
-	 * @return 儲存 index (reference) 的 {@link File} 物件
-	 */
-	public ConciseFile getIndexDirRef() {
-		return indexDirRef;
+	public ConciseFile getIndexDir(INDEX indexType) {
+		switch (indexType) {
+		default:
+		case DOCUMENT:	return indexDir;
+		case REFERENCE:	return indexDirRef;
+		}
 	}
 	
 	/**
@@ -190,15 +204,12 @@ public class Workspace {
 	 * 傳回原始文件檔案目錄
 	 * @return 原始文件檔案目錄
 	 */
-	public ConciseFile getOriginalDocFolder() {
-		return originalDocs;
+	public ConciseFile getOriginalDocFolder(INDEX indexType) {
+		switch (indexType) {
+		default:
+		case DOCUMENT:	return originalDocs;
+		case REFERENCE:	return originalRefs;
+		}
 	}
 	
-	/**
-	 * 傳回原始參照文件檔案目錄
-	 * @return 原始參照文件檔案目錄
-	 */
-	public ConciseFile getOriginalRefFolder() {
-		return originalRefs;
-	}
 }

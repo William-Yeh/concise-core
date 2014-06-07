@@ -13,6 +13,7 @@ import org.apache.lucene.search.vectorhighlight.FastVectorHighlighter;
 import org.apache.lucene.search.vectorhighlight.SingleFragListBuilder;
 import org.sustudio.concise.core.Config;
 import org.sustudio.concise.core.Workspace;
+import org.sustudio.concise.core.Workspace.INDEX;
 import org.sustudio.concise.core.concordance.Conc;
 import org.sustudio.concise.core.concordance.LineAndWhitespaceTokenizer;
 import org.sustudio.concise.core.concordance.NodeSentenceFragmentsBuilder;
@@ -66,7 +67,7 @@ public class Highlighter extends FastVectorHighlighter {
 	 */
 	public String getHighlightText() throws IOException {
 		return getBestFragment(getFieldQuery(query),
-				  			   workspace.getIndexReader(),
+				  			   workspace.getIndexReader(INDEX.DOCUMENT),
 				  			   docID, 
 				  			   ConciseField.CONTENT.field(),
 				  			   1,
@@ -88,7 +89,7 @@ public class Highlighter extends FastVectorHighlighter {
 	public String[] getHighlightTexts() throws IOException {
 		return getBestFragments(
 						getFieldQuery(query),
-						workspace.getIndexReader(),
+						workspace.getIndexReader(INDEX.DOCUMENT),
 						docID,
 						ConciseField.CONTENT.field(),
 						1,

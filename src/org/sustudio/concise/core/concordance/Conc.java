@@ -14,6 +14,7 @@ import org.apache.lucene.search.Query;
 import org.apache.lucene.search.ScoreDoc;
 import org.sustudio.concise.core.Config;
 import org.sustudio.concise.core.Workspace;
+import org.sustudio.concise.core.Workspace.INDEX;
 import org.sustudio.concise.core.corpus.importer.ConciseField;
 
 /**
@@ -46,7 +47,7 @@ public class Conc {
 		this.queryStr = queryStr;
 		this.showPartOfSpeech = showPartOfSpeech;
 		
-		reader = workspace.getIndexReader();
+		reader = workspace.getIndexReader(INDEX.DOCUMENT);
 		searcher = new IndexSearcher(reader);
 		
 		QueryParser parser = new QueryParser(Config.LUCENE_VERSION, 

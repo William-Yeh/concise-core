@@ -17,6 +17,7 @@ import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.util.BytesRef;
 import org.sustudio.concise.core.CCPrefs;
+import org.sustudio.concise.core.Workspace.INDEX;
 import org.sustudio.concise.core.collocation.TemporaryCollocateIndexer.CIField;
 import org.sustudio.concise.core.concordance.Conc;
 import org.sustudio.concise.core.concordance.ConcLine;
@@ -104,7 +105,7 @@ public class SurfaceCollocateIterator extends CollocateIterator {
 			Ns = stats.sumTotalTermFreq();
 			fn = stats.docCount();
 			
-			Terms corpusTerms = MultiFields.getTerms(conc.workspace.getIndexReader(), ConciseField.CONTENT.field());
+			Terms corpusTerms = MultiFields.getTerms(conc.workspace.getIndexReader(INDEX.DOCUMENT), ConciseField.CONTENT.field());
 			corpusTermsEnum = corpusTerms.iterator(null);
 			
 			Terms terms = MultiFields.getTerms(reader, CIField.TEXT.name());
@@ -138,7 +139,7 @@ public class SurfaceCollocateIterator extends CollocateIterator {
 			}
 			
 			long fnc = termsEnum.totalTermFreq();			
-			long fc = conc.workspace.getIndexReader()
+			long fc = conc.workspace.getIndexReader(INDEX.DOCUMENT)
 									.totalTermFreq(new Term(ConciseField.CONTENT.field(), term));
 			
 			String word = term.utf8ToString();
@@ -146,7 +147,7 @@ public class SurfaceCollocateIterator extends CollocateIterator {
 				// 這應該是 node，因為在 collocate 中掛上了標籤，要去掉標籤再找
 				word = word.replace(Conc.preNodeTag, "").replace(Conc.postNodeTag, "");
 				BytesRef bytes = new BytesRef(word);
-				fc += conc.workspace.getIndexReader()
+				fc += conc.workspace.getIndexReader(INDEX.DOCUMENT)
 									.totalTermFreq(new Term(ConciseField.CONTENT.field(), bytes));
 				
 				// fnc 也會漏掉，所以也得加上

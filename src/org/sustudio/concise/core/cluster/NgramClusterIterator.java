@@ -15,6 +15,7 @@ import org.apache.lucene.index.Terms;
 import org.apache.lucene.index.TermsEnum;
 import org.sustudio.concise.core.Config;
 import org.sustudio.concise.core.Workspace;
+import org.sustudio.concise.core.Workspace.INDEX;
 import org.sustudio.concise.core.collocation.ConciseTokenAnalyzer;
 import org.sustudio.concise.core.corpus.importer.ConciseField;
 
@@ -35,8 +36,8 @@ public class NgramClusterIterator extends ClusterIterator {
 		
 		TemporaryClusterIndexer ci = new TemporaryClusterIndexer(temporaryDirectory);
 		
-		for (int i = 0; i < workspace.getIndexReader().maxDoc(); i++) {
-			Document doc = workspace.getIndexReader().document(i);
+		for (int i = 0; i < workspace.getIndexReader(INDEX.DOCUMENT).maxDoc(); i++) {
+			Document doc = workspace.getIndexReader(INDEX.DOCUMENT).document(i);
 			if (doc == null) continue;
 			
 			TokenStream tokenStream = doc.getField(ConciseField.CONTENT.field()).tokenStream(analyzer);

@@ -17,9 +17,9 @@ import org.apache.lucene.document.StringField;
 import org.apache.lucene.document.Field.Store;
 import org.apache.tika.Tika;
 import org.sustudio.concise.core.CCPrefs;
-import org.sustudio.concise.core.ConciseFile;
 import org.sustudio.concise.core.Config;
 import org.sustudio.concise.core.Workspace;
+import org.sustudio.concise.core.Workspace.INDEX;
 import org.sustudio.concise.core.corpus.DocumentWriter;
 
 import edu.stanford.nlp.tagger.maxent.MaxentTagger;
@@ -47,17 +47,12 @@ public class Importer extends DocumentWriter {
 	 * @throws IOException
 	 */
 	public Importer(Workspace workspace) throws IOException {
-		this(workspace.getIndexDir());
+		this(workspace, INDEX.DOCUMENT);
 	}
 	
-	/**
-	 * use this constructor only to import reference corpus. 
-	 * @param workspace
-	 * @param indexDir	reference corpus 的路徑，使用 {@link Workspace#getIndexDirRef()}
-	 * @throws IOException
-	 */
-	public Importer(ConciseFile indexDir) throws IOException {
-		super(indexDir);
+	
+	public Importer(Workspace workspace, INDEX indexType) throws IOException {
+		super(workspace, indexType);
 	}
 
 	/**

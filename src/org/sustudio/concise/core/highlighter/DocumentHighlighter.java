@@ -14,6 +14,7 @@ import org.apache.lucene.search.vectorhighlight.BaseFragmentsBuilder;
 import org.sustudio.concise.core.CCPrefs;
 import org.sustudio.concise.core.Config;
 import org.sustudio.concise.core.Workspace;
+import org.sustudio.concise.core.Workspace.INDEX;
 import org.sustudio.concise.core.concordance.ConciseQueryAnalyzer;
 import org.sustudio.concise.core.concordance.LineAndWhitespaceTokenizer;
 import org.sustudio.concise.core.concordance.PartOfSpeechFilter;
@@ -49,7 +50,7 @@ public class DocumentHighlighter extends Highlighter {
 		parser.setAllowLeadingWildcard(true);
 		
 		Query query = parser.parse(queryStr);
-		query = query.rewrite(workspace.getIndexReader());
+		query = query.rewrite(workspace.getIndexReader(INDEX.DOCUMENT));
 		
 		DocumentHighlighter highlighter = new DocumentHighlighter(
 														workspace, 

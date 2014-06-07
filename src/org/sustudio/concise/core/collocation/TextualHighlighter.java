@@ -6,6 +6,7 @@ import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.search.vectorhighlight.FragmentsBuilder;
 import org.apache.lucene.search.vectorhighlight.SingleFragListBuilder;
 import org.sustudio.concise.core.Config;
+import org.sustudio.concise.core.Workspace.INDEX;
 import org.sustudio.concise.core.concordance.Conc;
 import org.sustudio.concise.core.concordance.ConcHighlighter;
 import org.sustudio.concise.core.corpus.importer.ConciseField;
@@ -33,7 +34,7 @@ public abstract class TextualHighlighter extends ConcHighlighter {
 	public String[] getHighlightTexts() throws IOException {
 		return getBestFragments(
 						getFieldQuery(query),
-						workspace.getIndexReader(),
+						workspace.getIndexReader(INDEX.DOCUMENT),
 						docID,
 						ConciseField.CONTENT.field(),
 						1,
@@ -48,7 +49,7 @@ public abstract class TextualHighlighter extends ConcHighlighter {
 	public String[] getAllTextsWithHighlight() throws IOException {
 		return getBestFragments(
 						getFieldQuery(query),
-						workspace.getIndexReader(),
+						workspace.getIndexReader(INDEX.DOCUMENT),
 						docID,
 						ConciseField.CONTENT.field(),
 						1,

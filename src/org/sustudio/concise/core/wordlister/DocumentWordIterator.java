@@ -7,6 +7,7 @@ import org.apache.lucene.index.DocsEnum;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.MultiFields;
 import org.sustudio.concise.core.Workspace;
+import org.sustudio.concise.core.Workspace.INDEX;
 import org.sustudio.concise.core.corpus.ConciseDocument;
 import org.sustudio.concise.core.corpus.importer.ConciseField;
 
@@ -34,20 +35,21 @@ public class DocumentWordIterator implements Iterator<Word>, Iterable<Word> {
 	 * @throws Exception
 	 */
 	public DocumentWordIterator(Workspace workspace, ConciseDocument document, boolean showPartOfSpeech) throws Exception {
-		this(workspace.getIndexReader(), document, showPartOfSpeech);
+		this(workspace, INDEX.DOCUMENT, document, showPartOfSpeech);
 	}
 	
 	/**
 	 * 用來讀參照語料庫的索引，應該用不上才是
-	 * @param reader
+	 * @param workspace
+	 * @param indexType
 	 * @param document
 	 * @param showPartOfSpeech
 	 * @throws Exception
 	 */
-	public DocumentWordIterator(final IndexReader reader, ConciseDocument document, boolean showPartOfSpeech) throws Exception {
-		this.reader = reader;
+	public DocumentWordIterator(Workspace workspace, INDEX indexType, ConciseDocument document, boolean showPartOfSpeech) throws Exception {
+		this.reader = workspace.getIndexReader(indexType);
 		this.document = document;
-		wordIterator = new WordIterator(reader, showPartOfSpeech);
+		wordIterator = new WordIterator(workspace, indexType, showPartOfSpeech);
 		readNext();
 	}
 	

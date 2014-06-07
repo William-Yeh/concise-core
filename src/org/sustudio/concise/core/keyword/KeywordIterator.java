@@ -3,6 +3,7 @@ package org.sustudio.concise.core.keyword;
 import java.util.Iterator;
 
 import org.sustudio.concise.core.Workspace;
+import org.sustudio.concise.core.Workspace.INDEX;
 import org.sustudio.concise.core.wordlister.Word;
 import org.sustudio.concise.core.wordlister.WordIterator;
 
@@ -42,8 +43,8 @@ public class KeywordIterator implements Iterator<Keyword>, Iterable<Keyword> {
 			nextKeyword = readNextKeyword();
 		}
 		*/
-		wordIterator = new WordIterator(workspace.getIndexReader(), showPartOfSpeech);
-		wordIteratorRef = new WordIterator(workspace.getIndexReaderRef(), showPartOfSpeech);
+		wordIterator = new WordIterator(workspace, INDEX.DOCUMENT, showPartOfSpeech);
+		wordIteratorRef = new WordIterator(workspace, INDEX.REFERENCE, showPartOfSpeech);
 		if (wordIterator != null && wordIteratorRef != null) {
 			nextKeyword = readNextKeyword();
 		}
@@ -56,7 +57,7 @@ public class KeywordIterator implements Iterator<Keyword>, Iterable<Keyword> {
 			{
 				Word word = wordIterator.next();
 				long f1 = word.getTotalTermFreq();
-				long f2 = workspace.getIndexReaderRef().totalTermFreq(word.getTerm());
+				long f2 = workspace.getIndexReader(INDEX.REFERENCE).totalTermFreq(word.getTerm());
 				
 				return new Keyword(word.getWord(), 
 									 f1, 
@@ -67,7 +68,7 @@ public class KeywordIterator implements Iterator<Keyword>, Iterable<Keyword> {
 			
 			while (wordIteratorRef.hasNext()) {
 				Word word = wordIteratorRef.next();
-				long f1 = workspace.getIndexReader().totalTermFreq(word.getTerm());
+				long f1 = workspace.getIndexReader(INDEX.DOCUMENT).totalTermFreq(word.getTerm());
 				if (f1 > 0) {
 					continue;	// keyword already exists
 				}
@@ -129,7 +130,7 @@ public class KeywordIterator implements Iterator<Keyword>, Iterable<Keyword> {
 	public long getCorpusSumTotalTermFreq() throws Exception {
 		if (corpusSumTotalTermFreq == -1) {
 			// force to do a word lister
-			corpusSumTotalTermFreq = WordIterator.sumTotalTermFreq(workspace, showPartOfSpeech);
+			corpusSumTotalTermFreq = WordIterator.sumTotalTermFreq(workspace, INDEX.DOCUMENT, showPartOfSpeech);
 		}
 		return corpusSumTotalTermFreq;
 	}
@@ -137,7 +138,7 @@ public class KeywordIterator implements Iterator<Keyword>, Iterable<Keyword> {
 	public long getReferenceSumTotalTermFreq() throws Exception {
 		if (referenceSumTotalTermFreq == -1) {
 			// force to do a word lister
-			referenceSumTotalTermFreq = WordIterator.sumTotalTermFreq(workspace.getIndexReaderRef(), showPartOfSpeech);
+			referenceSumTotalTermFreq = WordIterator.sumTotalTermFreq(workspace, INDEX.REFERENCE, showPartOfSpeech);
 		}
 		return referenceSumTotalTermFreq;
 	}
