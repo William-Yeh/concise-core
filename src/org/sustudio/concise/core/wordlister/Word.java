@@ -68,7 +68,10 @@ public class Word implements Serializable, Cloneable {
 
 			@Override
 			public int compare(Word w1, Word w2) {
-				if (w1.getTotalTermFreq() > w2.getTotalTermFreq()) return -1;
+				if (w1.getTotalTermFreq() > w2.getTotalTermFreq()) 
+					return -1;
+				else if (w1.getTotalTermFreq() < w2.getTotalTermFreq()) 
+					return 1;
 				return 0;
 			}
 			

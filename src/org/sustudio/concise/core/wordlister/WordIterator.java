@@ -62,6 +62,8 @@ public class WordIterator implements Iterator<Word>, Iterable<Word> {
 	/** 做一個標記，看看 TermsEnum 是不是還在繼續 */
 	private boolean termsEnumContinues = true;
 	
+	private LemmaList lemmaList;
+	
 	/**
 	 * 讀取 {@link Workspace} 索引中的詞彙
 	 * @param workspace
@@ -89,6 +91,13 @@ public class WordIterator implements Iterator<Word>, Iterable<Word> {
 		Terms terms = MultiFields.getTerms(reader, ConciseField.CONTENT.field());
 		if (terms != null) 
 		{
+			if (CCPrefs.LEMMA_ENABLED && CCPrefs.LEMMA_LIST != null) {
+				lemmaList = (LemmaList) CCPrefs.LEMMA_LIST.clone();
+			} else {
+				lemmaList = new LemmaList();
+			}
+			
+			
 			boolean lemmatize = countSumTotalOnly ? false : CCPrefs.LEMMA_ENABLED;
 			// ConciseTermsEnum 是過濾後的 TermsEnum
 			termsEnum = new ConciseTermsEnum(terms.iterator(null), showPartOfSpeech, lemmatize);
@@ -113,40 +122,54 @@ public class WordIterator implements Iterator<Word>, Iterable<Word> {
 				}
 				
 				// build lemma
-				if (CCPrefs.LEMMA_ENABLED && CCPrefs.LEMMA_LIST != null) {
+				if (CCPrefs.LEMMA_ENABLED && lemmaList != null) {
 					Lemma lemma = CCPrefs.LEMMA_LIST.get(term);
+					lemmaList.remove(lemma);
 					if (lemma != null) {
-						word.addChild(word.clone());
-						word.setDocFreq(0);
-						StringBuilder queryWords = new StringBuilder();
-						queryWords.append("\"" + word.getWord() + "\"");
-						for (String form : lemma.getForms()) {
-							form = CustomPartOfSpeechDecoder.decode(form);
-							// get frequency
-							Term formTerm = new Term(ConciseField.CONTENT.field(), form);
-							long formDocFreq = reader.docFreq(formTerm);
-							long formTotalTermFreq = reader.totalTermFreq(formTerm);
-							Word formWord = new Word( CustomPartOfSpeechEncoder.encode(form), formDocFreq, formTotalTermFreq );
-							word.addChild(formWord);
-							word.setTotalTermFreq(word.getTotalTermFreq() + formTotalTermFreq);
-							queryWords.append(" OR \"" + formWord.getWord() + "\"");
-						}
-						
-						// query to get total docFreq
-						QueryParser parser = new QueryParser(Config.LUCENE_VERSION, ConciseField.CONTENT.field(), new WhitespaceAnalyzer(Config.LUCENE_VERSION));
-						Query q = parser.parse(queryWords.toString());
-						IndexSearcher searcher = new IndexSearcher(reader);
-						AllDocsCollector allDocs = new AllDocsCollector();
-						searcher.search(q, allDocs);
-						word.setDocFreq(allDocs.allDocs().length);
+						word = buildLemma(word, lemma);
 					}
 				}
 				
 				nextWord = word;
-				break;
+				return nextWord;
 			}
 		}
+		
+		// 處理沒有在詞彙中的 Lemma
+		if (lemmaList.size() > 0) {
+			Lemma lemma = lemmaList.remove(0);
+			Word word = new Word(lemma.getWord(), 0, 0);
+			word = buildLemma(word, lemma);
+			nextWord = word;
+		}
 		return nextWord;
+	}
+	
+	private Word buildLemma(Word word, Lemma lemma) throws Exception {
+		word.addChild(word.clone());
+		word.setDocFreq(0);
+		StringBuilder queryWords = new StringBuilder();
+		queryWords.append("\"" + word.getWord() + "\"");
+		for (String form : lemma.getForms()) {
+			form = CustomPartOfSpeechDecoder.decode(form);
+			// get frequency
+			Term formTerm = new Term(ConciseField.CONTENT.field(), form);
+			long formDocFreq = reader.docFreq(formTerm);
+			long formTotalTermFreq = reader.totalTermFreq(formTerm);
+			Word formWord = new Word( CustomPartOfSpeechEncoder.encode(form), formDocFreq, formTotalTermFreq );
+			word.addChild(formWord);
+			word.setTotalTermFreq(word.getTotalTermFreq() + formTotalTermFreq);
+			queryWords.append(" OR \"" + formWord.getWord() + "\"");
+		}
+		
+		// query to get total docFreq
+		QueryParser parser = new QueryParser(Config.LUCENE_VERSION, ConciseField.CONTENT.field(), new WhitespaceAnalyzer(Config.LUCENE_VERSION));
+		Query q = parser.parse(queryWords.toString());
+		IndexSearcher searcher = new IndexSearcher(reader);
+		AllDocsCollector allDocs = new AllDocsCollector();
+		searcher.search(q, allDocs);
+		word.setDocFreq(allDocs.allDocs().length);
+		return word;
 	}
 	
 	@Override
