@@ -2,14 +2,12 @@ package org.sustudio.concise.core.collocation;
 
 import java.util.Map;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.MultiFields;
 import org.apache.lucene.index.Terms;
 import org.apache.lucene.index.TermsEnum;
 import org.apache.lucene.search.ScoreDoc;
-import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.util.BytesRef;
 import org.sustudio.concise.core.collocation.TemporaryCollocateIndexer.CIField;
 import org.sustudio.concise.core.concordance.Conc;
@@ -45,7 +43,7 @@ public class TextualCollocateIterator extends CollocateIterator {
 	{
 		super(conc, filters);
 		
-		TemporaryCollocateIndexer ci = new TemporaryCollocateIndexer(indexDirectory, 0, 0);
+		TemporaryCollocateIndexer ci = new TemporaryCollocateIndexer(temporaryDirectory, 0, 0);
 		numberOfTexts = 0;
 		nodeMarginalFrequency = 0;
 		
@@ -74,7 +72,7 @@ public class TextualCollocateIterator extends CollocateIterator {
 		}
 		ci.closeWriter();
 				
-		reader = DirectoryReader.open(indexDirectory);
+		reader = DirectoryReader.open(temporaryDirectory);
 		numberOfTexts = reader.numDocs();
 		
 		Terms terms = MultiFields.getTerms(reader, CIField.NODE.name());
@@ -88,7 +86,7 @@ public class TextualCollocateIterator extends CollocateIterator {
 	}
 	
 	protected Collocate readNextCollocate() throws Exception {
-		reader = DirectoryReader.open(indexDirectory);
+		reader = DirectoryReader.open(temporaryDirectory);
 		BytesRef term = null;
 		while ((term = nodeTermsEnum.next()) != null) {
 			String word = term.utf8ToString();
@@ -130,10 +128,7 @@ public class TextualCollocateIterator extends CollocateIterator {
 		}
 		
 		reader.close();
-		indexDirectory.close();
-		if (indexDirectory instanceof FSDirectory) {
-			FileUtils.deleteDirectory(((FSDirectory) indexDirectory).getDirectory());
-		}
+		closeTemporaryDirectory();
 		
 		return null;
 	}

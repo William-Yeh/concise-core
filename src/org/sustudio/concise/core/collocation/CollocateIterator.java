@@ -1,10 +1,14 @@
 package org.sustudio.concise.core.collocation;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.lucene.store.Directory;
+import org.apache.lucene.store.FSDirectory;
 import org.sustudio.concise.core.concordance.Conc;
 
 public abstract class CollocateIterator implements Iterator<Collocate>, Iterable<Collocate> {
@@ -13,7 +17,7 @@ public abstract class CollocateIterator implements Iterator<Collocate>, Iterable
 	protected static final String _NODE_SEPARATOR = "_NODE_";
 	
 	/** 暫存的工作目錄，CollocateIterator 結束後應該刪除 */
-	protected Directory indexDirectory;
+	protected Directory temporaryDirectory;
 	protected final Map<CollocateMeasurement, Double> filters;
 	protected Collocate nextCollocate;
 		
@@ -22,7 +26,7 @@ public abstract class CollocateIterator implements Iterator<Collocate>, Iterable
 			filters = new HashMap<CollocateMeasurement, Double>();
 		}
 		this.filters = filters;
-		this.indexDirectory = conc.workspace.getTempDirectory();
+		this.temporaryDirectory = conc.workspace.getTempDirectory();
 	}
 	
 	
@@ -48,6 +52,18 @@ public abstract class CollocateIterator implements Iterator<Collocate>, Iterable
 			e.printStackTrace();
 		}
 		return collocate;
+	}
+	
+	/**
+	 * 關閉並刪除暫存目錄
+	 * @throws IOException
+	 */
+	protected void closeTemporaryDirectory() throws IOException {
+		if (temporaryDirectory instanceof FSDirectory) {
+			File tmpdir = ((FSDirectory) temporaryDirectory).getDirectory();
+			FileUtils.deleteDirectory(tmpdir);
+		}
+		temporaryDirectory.close();
 	}
 
 	

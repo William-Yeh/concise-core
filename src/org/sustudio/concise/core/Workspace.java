@@ -214,7 +214,7 @@ public class Workspace {
 	
 	/**
 	 * 傳回暫存的 Directory 物件，用於處理 Lucene 的暫存內容。<br>
-	 * 預設是使用 {@link RANDirectory}，但是可以在應用時改寫為自訂的檔案路徑。
+	 * 預設是使用 {@link RAMDirectory}，但是可以在應用時改寫為自訂的檔案路徑。
 	 * @return
 	 */
 	public Directory getTempDirectory() {

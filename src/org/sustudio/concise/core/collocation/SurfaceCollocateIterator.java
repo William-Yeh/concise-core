@@ -3,7 +3,6 @@ package org.sustudio.concise.core.collocation;
 import java.util.HashSet;
 import java.util.Map;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.Fields;
 import org.apache.lucene.index.IndexReader;
@@ -14,7 +13,6 @@ import org.apache.lucene.index.TermsEnum;
 import org.apache.lucene.search.CollectionStatistics;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.ScoreDoc;
-import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.util.BytesRef;
 import org.sustudio.concise.core.CCPrefs;
 import org.sustudio.concise.core.Workspace.INDEX;
@@ -62,7 +60,7 @@ public class SurfaceCollocateIterator extends CollocateIterator {
 		
 		ScoreDoc[] hitDocs = conc.hitDocs();
 		if (hitDocs.length > 0) {
-			TemporaryCollocateIndexer ci = new TemporaryCollocateIndexer(indexDirectory, 
+			TemporaryCollocateIndexer ci = new TemporaryCollocateIndexer(temporaryDirectory, 
 																		 conc.left_span_size,
 																		 conc.right_span_size);
 			for (ScoreDoc scoreDoc : hitDocs) 
@@ -99,7 +97,7 @@ public class SurfaceCollocateIterator extends CollocateIterator {
 			Nc = getCorpusSumTotalTermFreq();
 			
 			// read collocate(s) from tmp index dir
-			reader = DirectoryReader.open(indexDirectory);
+			reader = DirectoryReader.open(temporaryDirectory);
 			IndexSearcher searcher = new IndexSearcher(reader);
 			CollectionStatistics stats = searcher.collectionStatistics(CIField.TEXT.name());
 			Ns = stats.sumTotalTermFreq();
@@ -207,10 +205,7 @@ public class SurfaceCollocateIterator extends CollocateIterator {
 		termsEnum = null;
 		fields = null;
 		reader.close();
-		indexDirectory.close();
-		if (indexDirectory instanceof FSDirectory) {
-			FileUtils.deleteDirectory(((FSDirectory) indexDirectory).getDirectory());
-		}
+		closeTemporaryDirectory();
 		
 		return null;
 	}

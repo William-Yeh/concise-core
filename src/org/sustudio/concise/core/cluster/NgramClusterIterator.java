@@ -85,7 +85,7 @@ public class NgramClusterIterator extends ClusterIterator {
 		}
 		termsEnum = null;
 		ireader.close();
-		temporaryDirectory.close();
+		closeTemporaryDirectory();
 		return null;
 	}
 	

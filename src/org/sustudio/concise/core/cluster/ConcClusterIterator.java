@@ -62,7 +62,7 @@ public class ConcClusterIterator extends ClusterIterator {
 		}
 		termsEnum = null;
 		reader.close();
-		temporaryDirectory.close();
+		closeTemporaryDirectory();
 		return null;
 	}
 	

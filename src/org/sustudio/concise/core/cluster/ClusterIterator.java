@@ -1,8 +1,12 @@
 package org.sustudio.concise.core.cluster;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.Iterator;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.lucene.store.Directory;
+import org.apache.lucene.store.FSDirectory;
 import org.sustudio.concise.core.Workspace;
 
 public abstract class ClusterIterator implements Iterator<Cluster>, Iterable<Cluster> {
@@ -29,6 +33,18 @@ public abstract class ClusterIterator implements Iterator<Cluster>, Iterable<Clu
 	 */
 	public void remove() {
 		throw new UnsupportedOperationException("remove() is not supported.");
+	}
+	
+	/**
+	 * 關閉並刪除暫存目錄
+	 * @throws IOException
+	 */
+	protected void closeTemporaryDirectory() throws IOException {
+		if (temporaryDirectory instanceof FSDirectory) {
+			File tmpdir = ((FSDirectory) temporaryDirectory).getDirectory();
+			FileUtils.deleteDirectory(tmpdir);
+		}
+		temporaryDirectory.close();
 	}
 	
 	//
