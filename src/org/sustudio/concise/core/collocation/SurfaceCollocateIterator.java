@@ -57,7 +57,7 @@ public class SurfaceCollocateIterator extends CollocateIterator {
 	
 	public SurfaceCollocateIterator(Conc conc, Map<CollocateMeasurement, Double> filters) throws Exception 
 	{
-		super(filters);
+		super(conc, filters);
 		this.conc = conc;
 		
 		ScoreDoc[] hitDocs = conc.hitDocs();

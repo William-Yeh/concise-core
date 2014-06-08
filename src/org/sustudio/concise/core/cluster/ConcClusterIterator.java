@@ -24,6 +24,7 @@ public class ConcClusterIterator extends ClusterIterator {
 	
 	public ConcClusterIterator(Conc conc) throws Exception 
 	{	
+		super(conc.workspace);
 		TemporaryClusterIndexer ci = new TemporaryClusterIndexer(temporaryDirectory);
 		for (ScoreDoc doc : conc.hitDocs()) {
 			
@@ -61,6 +62,7 @@ public class ConcClusterIterator extends ClusterIterator {
 		}
 		termsEnum = null;
 		reader.close();
+		temporaryDirectory.close();
 		return null;
 	}
 	

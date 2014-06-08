@@ -26,6 +26,7 @@ public class NgramClusterIterator extends ClusterIterator {
 	private final Analyzer analyzer;
 	
 	public NgramClusterIterator(final Workspace workspace, final int n, boolean showPartOfSpeech) throws Exception {
+		super(workspace);
 		analyzer = new ShingleAnalyzerWrapper(new ConciseTokenAnalyzer(Config.LUCENE_VERSION, showPartOfSpeech),
 											  n,
 											  n,
@@ -84,6 +85,7 @@ public class NgramClusterIterator extends ClusterIterator {
 		}
 		termsEnum = null;
 		ireader.close();
+		temporaryDirectory.close();
 		return null;
 	}
 	

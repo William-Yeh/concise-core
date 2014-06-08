@@ -5,28 +5,27 @@ import java.util.Iterator;
 import java.util.Map;
 
 import org.apache.lucene.store.Directory;
-import org.apache.lucene.store.RAMDirectory;
+import org.sustudio.concise.core.concordance.Conc;
 
 public abstract class CollocateIterator implements Iterator<Collocate>, Iterable<Collocate> {
 
 	/** node separator (for phrase search) */
 	protected static final String _NODE_SEPARATOR = "_NODE_";
 	
-	public Directory indexDirectory = new RAMDirectory();
+	/** 暫存的工作目錄，CollocateIterator 結束後應該刪除 */
+	protected Directory indexDirectory;
 	protected final Map<CollocateMeasurement, Double> filters;
 	protected Collocate nextCollocate;
 		
-	public CollocateIterator(Map<CollocateMeasurement, Double> filters) {
+	public CollocateIterator(Conc conc, Map<CollocateMeasurement, Double> filters) {
 		if (filters == null) {
 			filters = new HashMap<CollocateMeasurement, Double>();
 		}
 		this.filters = filters;
+		this.indexDirectory = conc.workspace.getTempDirectory();
 	}
 	
-	public void setTemporaryDirectory(Directory temporaryDirectory) {
-		this.indexDirectory = temporaryDirectory;
-	}
-			
+	
 	protected abstract Collocate readNextCollocate() throws Exception;
 	
 	

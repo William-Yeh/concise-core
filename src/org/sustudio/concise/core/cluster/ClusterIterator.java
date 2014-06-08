@@ -3,20 +3,17 @@ package org.sustudio.concise.core.cluster;
 import java.util.Iterator;
 
 import org.apache.lucene.store.Directory;
-import org.apache.lucene.store.RAMDirectory;
+import org.sustudio.concise.core.Workspace;
 
 public abstract class ClusterIterator implements Iterator<Cluster>, Iterable<Cluster> {
 
 	protected Cluster nextCluster;
 	
-	protected Directory temporaryDirectory = new RAMDirectory();
+	/** 暫存的工作目錄，ClusterIterator結束後應該刪除 */
+	protected Directory temporaryDirectory;
 	
-	public void setTemporaryDirectory(Directory indexDirectory) {
-		temporaryDirectory = indexDirectory;
-	}
-	
-	public Directory getTemporaryDirectory() {
-		return temporaryDirectory;
+	public ClusterIterator(Workspace workspace) {
+		temporaryDirectory = workspace.getTempDirectory();
 	}
 	
 	public Iterator<Cluster> iterator() {

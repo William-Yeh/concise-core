@@ -43,7 +43,7 @@ public class TextualCollocateIterator extends CollocateIterator {
 	
 	public TextualCollocateIterator(Conc conc, BOUNDARY boundary, Map<CollocateMeasurement, Double> filters) throws Exception 
 	{
-		super(filters);
+		super(conc, filters);
 		
 		TemporaryCollocateIndexer ci = new TemporaryCollocateIndexer(indexDirectory, 0, 0);
 		numberOfTexts = 0;

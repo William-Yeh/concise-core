@@ -9,6 +9,7 @@ import org.apache.lucene.index.IndexNotFoundException;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
+import org.apache.lucene.store.RAMDirectory;
 
 /**
  * Concise資料夾的基礎，開啓 {@link Workspace} 後會建立相關的檔案結構，並且開啓預設的 {@link IndexReader}。
@@ -38,7 +39,6 @@ public class Workspace {
 	private IndexReader indexReaderRef;
 	private Directory indexDirectory;
 	private Directory indexDirectoryRef;
-	
 	
 	public Workspace(File workpath) throws IOException {
 		
@@ -210,6 +210,15 @@ public class Workspace {
 		case DOCUMENT:	return originalDocs;
 		case REFERENCE:	return originalRefs;
 		}
+	}
+	
+	/**
+	 * 傳回暫存的 Directory 物件，用於處理 Lucene 的暫存內容。<br>
+	 * 預設是使用 {@link RANDirectory}，但是可以在應用時改寫為自訂的檔案路徑。
+	 * @return
+	 */
+	public Directory getTempDirectory() {
+		return new RAMDirectory();
 	}
 	
 }
