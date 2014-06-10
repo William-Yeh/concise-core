@@ -61,7 +61,7 @@ public class Highlighter extends FastVectorHighlighter {
 	}
 	
 	/**
-	 * 傳回highlight的結果，也就是增加自定tag的結果
+	 * 傳回highlight的結果，也就是增加自定tag的結果。如果沒有任何 highlight 的話，則會傳回 null。
 	 * @return
 	 * @throws IOException
 	 */

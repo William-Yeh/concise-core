@@ -62,6 +62,6 @@ public class ConciseDocument {
 	}
 	
 	public String toString() {
-		return getClass().getSimpleName() + " {" + documentFile.toString() + "}";
+		return getClass().getSimpleName() + " {" + title + "}";
 	}
 }
