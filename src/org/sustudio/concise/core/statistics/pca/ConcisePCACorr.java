@@ -1,4 +1,4 @@
-package org.sustudio.concise.core.statistics;
+package org.sustudio.concise.core.statistics.pca;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,7 +11,7 @@ import org.sustudio.concise.core.wordlister.Word;
 import org.sustudio.concise.core.wordlister.WordIterator;
 import org.sustudio.concise.core.wordlister.WordUtils;
 
-public class ConcisePCA {
+public class ConcisePCACorr {
 
 	private final Workspace workspace;
 	private final ArrayList<ConciseDocument> docs = new ArrayList<ConciseDocument>();
@@ -19,7 +19,7 @@ public class ConcisePCA {
 	private final ArrayList<PC> pcs = new ArrayList<PC>();
 	private double[] eigenValues = null;
 	
-	public ConcisePCA(Workspace workspace, boolean showPartOfSpeech) throws Exception {
+	public ConcisePCACorr(Workspace workspace, boolean showPartOfSpeech) throws Exception {
 		this.workspace = workspace;
 		
 		// gathering info of documents (x-Axis)
@@ -49,8 +49,8 @@ public class ConcisePCA {
 		}
 		
 		// start Principal Components Analysis
-		PCA pca = new PCA();
-		pca.setObservations(observations, true);
+		PCACorr pca = new PCACorr();
+		pca.setObservations(observations);
 		pca.transform();
 		eigenValues = pca.getEigenValues();
 		double[][] principalComponents = pca.getPrincipalComponents();
@@ -59,7 +59,7 @@ public class ConcisePCA {
 			double[] pc = principalComponents[i];
 			pcs.add(new PC(word, pc));
 		}
-		//pca.clear();
+		pca.clear();
 	}
 	
 	public List<PC> getPrincipalComponents() {
@@ -115,5 +115,4 @@ public class ConcisePCA {
 			return principalComponents[dimension - 1];
 		}
 	}
-	
 }

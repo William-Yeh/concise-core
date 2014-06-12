@@ -1,4 +1,4 @@
-package org.sustudio.concise.core.statistics;
+package org.sustudio.concise.core.statistics.pca;
 
 public class ConciseStatUtils {
 

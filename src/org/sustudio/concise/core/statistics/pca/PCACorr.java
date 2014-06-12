@@ -1,4 +1,4 @@
-package org.sustudio.concise.core.statistics;
+package org.sustudio.concise.core.statistics.pca;
 
 import org.apache.commons.lang3.ArrayUtils;
 
