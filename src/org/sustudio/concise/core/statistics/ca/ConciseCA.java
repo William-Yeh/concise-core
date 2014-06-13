@@ -1,13 +1,17 @@
 package org.sustudio.concise.core.statistics.ca;
 
+import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.sustudio.concise.core.Workspace;
 import org.sustudio.concise.core.corpus.ConciseDocument;
 import org.sustudio.concise.core.corpus.DocumentIterator;
 import org.sustudio.concise.core.wordlister.WordUtils;
+
 
 public class ConciseCA {
 
@@ -47,13 +51,18 @@ public class ConciseCA {
 			rowlabs.add(word);
 			Map<ConciseDocument, Integer> wordMap = WordUtils.wordFreqByDocs(workspace, word, docs);
 			for (int j = 0; j < docs.size(); j++) {
-				indat[i][j] = wordMap.get(docs.get(j));
+				indat[i][j] = 0.0;
+				if (wordMap.get(docs.get(j)) != null)
+					indat[i][j] = wordMap.get(docs.get(j));
 			}
 			wordMap.clear();
 		}
 		this.rowlabs = rowlabs.toArray(new String[0]);
 		rowlabs.clear();
 		n = words.size();
+		
+		// 必須要先檢查 row sums 和 column sums，兩者都必須 > 0
+		indat = checkAvailability(indat);
 		
 		/* -------------------------------------------------------------
 	     * principal array.
@@ -100,6 +109,71 @@ public class ConciseCA {
                 rowsums, colsums, total, this.rowlabs, this.collabs);
 	}
 	
+	/**
+	 * Check row sums and column sums. Both must be > 0.
+	 * @param indat
+	 * @return
+	 * @throws Exception 
+	 */
+	private double[][] checkAvailability(double[][] indat) throws Exception {
+		
+		double[] rowsums = new double[n];
+        double[] colsums = new double[m];
+        
+        // Row sums and overall total
+        for (int i = 0; i < n; i++) {
+            rowsums[i] = 0.0;
+            for (int j = 0; j < m; j++) {
+                rowsums[i] += indat[i][j];
+            }
+        }
+
+        // Col sums
+        for (int j = 0; j < m; j++) {
+            colsums[j] = 0.0;
+            for (int i = 0; i <n; i++) colsums[j] += indat[i][j];
+        }
+        
+        
+        // row sums check
+        for (int i = n-1; i >= 0; i--) {
+        	if (rowsums[i] == 0.0) {
+        		ArrayUtils.remove(rowlabs, i);
+        	}
+        }
+        
+        // column sums check
+        for (int j = m-1; j >= 0; j--) {
+        	if (colsums[j] == 0.0) {
+        		docs.remove(j);
+        	}
+        }
+        
+        if (rowlabs.length != n || docs.size() != m) {
+        	// recreate matrix
+        	n = rowlabs.length;
+        	m = docs.size();
+        	collabs = new String[m];
+        	for (int j = 0; j < docs.size(); j++) {
+        		collabs[j] = docs.get(j).title;
+        	}
+        	System.err.println("Recreate matrix with " + n + " x " + m + " .");
+        	indat = new double[n][m];
+        	for (int i = 0; i < rowlabs.length; i++) {
+    			String word = rowlabs[i];
+    			Map<ConciseDocument, Integer> wordMap = WordUtils.wordFreqByDocs(workspace, word, docs);
+    			for (int j = 0; j < docs.size(); j++) {
+    				indat[i][j] = 0.0;
+    				if (wordMap.get(docs.get(j)) != null)
+    					indat[i][j] = wordMap.get(docs.get(j));
+    			}
+    			wordMap.clear();
+    		}
+        }
+        
+        return indat;
+	}
+	
 	public void analyze() {
 		ca = new CorrespondenceAnalysis(principal);
 	}
@@ -143,4 +217,5 @@ public class ConciseCA {
 	public double[] getRatesOfInertia() {
 		return ca.getRates();
 	}
+	
 }
