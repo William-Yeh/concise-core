@@ -8,13 +8,15 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.sustudio.concise.core.Workspace;
 import org.sustudio.concise.core.corpus.ConciseDocument;
 import org.sustudio.concise.core.corpus.DocumentIterator;
+import org.sustudio.concise.core.statistics.ConciseMultivariate;
+import org.sustudio.concise.core.statistics.DocumentPlotData;
+import org.sustudio.concise.core.statistics.WordPlotData;
 import org.sustudio.concise.core.wordlister.Word;
 import org.sustudio.concise.core.wordlister.WordUtils;
 
 
-public class ConciseCA {
+public class ConciseCA extends ConciseMultivariate {
 
-	private final Workspace workspace;
 	private final ArrayList<ConciseDocument> docs = new ArrayList<ConciseDocument>();
 	
 	private int nclusters = 3;  // Number of clusters to be analyzed
@@ -29,8 +31,12 @@ public class ConciseCA {
     private Imatrix principal;
 	private CorrespondenceAnalysis ca;
     
-    public ConciseCA(Workspace workspace, boolean showPartOfSpeech) throws Exception {
-		this.workspace = workspace;
+    public ConciseCA(Workspace workspace, boolean showPartOfSpeech) {
+    	super(workspace, showPartOfSpeech);
+	}
+	
+	public void setWords(List<String> words) throws Exception {
+		
 		ArrayList<ConciseDocument> collabs = new ArrayList<ConciseDocument>();
 		for (ConciseDocument cd : new DocumentIterator(workspace)) {
 			docs.add(cd);
@@ -40,9 +46,8 @@ public class ConciseCA {
 		collabs.clear();
 		m = docs.size();
 		nclusattr = m;
-	}
-	
-	public void setWords(List<String> words) throws Exception {
+		
+		// TODO remove after debug
 		System.err.println(words);
 		double[][] indat = new double[words.size()][docs.size()];
 		ArrayList<Word> rowlabs = new ArrayList<Word>();
@@ -106,6 +111,9 @@ public class ConciseCA {
         
         principal = new Imatrix(indat, n, m, 
                 				rowsums, colsums, total);
+        
+        // doing analysis
+        analyze();
 	}
 	
 	/**
@@ -156,6 +164,7 @@ public class ConciseCA {
         	for (int j = 0; j < docs.size(); j++) {
         		collabs[j] = docs.get(j);
         	}
+        	// TODO remove after debug
         	System.err.println("Recreate matrix with " + n + " x " + m + " .");
         	indat = new double[n][m];
         	for (int i = 0; i < rowlabs.length; i++) {

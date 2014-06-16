@@ -1,4 +1,4 @@
-package org.sustudio.concise.core.statistics.ca;
+package org.sustudio.concise.core.statistics;
 
 import org.sustudio.concise.core.wordlister.Word;
 

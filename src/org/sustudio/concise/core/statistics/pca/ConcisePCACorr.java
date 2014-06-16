@@ -7,29 +7,35 @@ import java.util.Map;
 import org.sustudio.concise.core.Workspace;
 import org.sustudio.concise.core.corpus.ConciseDocument;
 import org.sustudio.concise.core.corpus.DocumentIterator;
+import org.sustudio.concise.core.statistics.ConciseMultivariate;
+import org.sustudio.concise.core.statistics.DocumentPlotData;
+import org.sustudio.concise.core.statistics.WordPlotData;
 import org.sustudio.concise.core.wordlister.Word;
-import org.sustudio.concise.core.wordlister.WordIterator;
 import org.sustudio.concise.core.wordlister.WordUtils;
 
-public class ConcisePCACorr {
+public class ConcisePCACorr extends ConciseMultivariate {
 
-	private final Workspace workspace;
 	private final ArrayList<ConciseDocument> docs = new ArrayList<ConciseDocument>();
-	private final ArrayList<Word> words = new ArrayList<Word>();
-	private final ArrayList<PC> pcs = new ArrayList<PC>();
+	private final ArrayList<Word> wordList = new ArrayList<Word>();
+	private final List<WordPlotData> rowProjectionData = new ArrayList<WordPlotData>();
 	private double[] eigenValues = null;
 	
-	public ConcisePCACorr(Workspace workspace, boolean showPartOfSpeech) throws Exception {
-		this.workspace = workspace;
-		
+	public ConcisePCACorr(Workspace workspace, boolean showPartOfSpeech) {
+		super(workspace, showPartOfSpeech);
+	}
+	
+	public void setWords(List<String> words) throws Exception {
 		// gathering info of documents (x-Axis)
 		for (ConciseDocument cd : new DocumentIterator(workspace)) {
 			docs.add(cd);
 		}
 		
 		// gather info of words (y-Axis)
-		for (Word w : new WordIterator(workspace, showPartOfSpeech)) {
-			words.add(w);
+		for (String strWord : words) {
+			Word w = WordUtils.getWordInCorpus(workspace, strWord);
+			if (w.totalTermFreq > 0) {
+				wordList.add(w);
+			}
 		}
 		
 		transform();
@@ -37,9 +43,9 @@ public class ConcisePCACorr {
 	
 	protected void transform() throws Exception {
 		// build observations array
-		double[][] observations = new double[words.size()][docs.size()];
-		for (int i=0; i<words.size(); i++) {
-			Word word = words.get(i);
+		double[][] observations = new double[wordList.size()][docs.size()];
+		for (int i=0; i<wordList.size(); i++) {
+			Word word = wordList.get(i);
 			Map<ConciseDocument, Integer> countMap = WordUtils.wordFreqByDocs(workspace, word.getWord(), docs);
 			for (int j=0; j<docs.size(); j++) {
 				Integer f = countMap.get(docs.get(j));
@@ -54,18 +60,23 @@ public class ConcisePCACorr {
 		pca.transform();
 		eigenValues = pca.getEigenValues();
 		double[][] principalComponents = pca.getPrincipalComponents();
-		for (int i=0; i<words.size(); i++) {
-			Word word = words.get(i);
+		for (int i=0; i<wordList.size(); i++) {
+			Word word = wordList.get(i);
 			double[] pc = principalComponents[i];
-			pcs.add(new PC(word, pc));
+			rowProjectionData.add(new WordPlotData(word, pc[0], pc[1]));
 		}
 		pca.clear();
+		docs.clear();
 	}
 	
-	public List<PC> getPrincipalComponents() {
-		return pcs;
+	public List<WordPlotData> getRowProjectionData() {
+		return rowProjectionData;
 	}
 	
+	public List<DocumentPlotData> getColProjectionData() {
+		return null;
+	}
+
 	/**
 	 * returns the EigenValues of the principal components analysis
 	 * @return
@@ -75,44 +86,19 @@ public class ConcisePCACorr {
 	}
 	
 	/**
-	 * returns the percentage explained by dimension (starts from 1)
-	 * @param dimension dimension starts from 1
+	 * returns the percentage explained by each dimension
 	 * @return
 	 */
-	public double getExplainedByDimension(int dimension) {
+	public double[] getRatesOfInertia() {
 		double total = 0.0;
 		for (double eig : eigenValues) {
 			total += eig;
 		}
-		return eigenValues[dimension - 1] / total;
+		double[] rates = new double[eigenValues.length];
+		for (int i = 0; i < rates.length; i++) {
+			rates[i] = eigenValues[i] / total;
+		}
+		return rates;
 	}
 	
-	public void clear() {
-		words.clear();
-		docs.clear();
-		pcs.clear();
-	}
-	
-	public class PC {
-		private final Word word;
-		private final double[] principalComponents;
-		
-		PC(Word word, double[] principalComponents) {
-			this.word = word;
-			this.principalComponents = principalComponents;
-		}
-		
-		public Word getWord() {
-			return word;
-		}
-		
-		/**
-		 * returns the projection (principal component) of the dimension
-		 * @param dimension dimension start from 1.
-		 * @return
-		 */
-		public double getPC(int dimension) {
-			return principalComponents[dimension - 1];
-		}
-	}
 }
