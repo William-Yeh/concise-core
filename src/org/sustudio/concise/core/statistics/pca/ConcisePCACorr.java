@@ -41,6 +41,72 @@ public class ConcisePCACorr extends ConciseMultivariate {
 		transform();
 	}
 	
+	/**
+	 * Check row sums and column sums. Both must be > 0.
+	 * @param indat
+	 * @return
+	 * @throws Exception 
+	 */
+	private double[][] checkAvailability(double[][] indat) throws Exception {
+		
+		int n = indat.length;
+		int m = indat[0].length;
+		
+		double[] rowsums = new double[n];
+        double[] colsums = new double[m];
+        
+        // Row sums and overall total
+        for (int i = 0; i < n; i++) {
+            rowsums[i] = 0.0;
+            for (int j = 0; j < m; j++) {
+                rowsums[i] += indat[i][j];
+            }
+        }
+
+        // Col sums
+        for (int j = 0; j < m; j++) {
+            colsums[j] = 0.0;
+            for (int i = 0; i <n; i++) colsums[j] += indat[i][j];
+        }
+        
+        
+        // row sums check
+        for (int i = n-1; i >= 0; i--) {
+        	if (rowsums[i] == 0.0) {
+        		wordList.remove(i);
+        	}
+        }
+        
+        // column sums check
+        for (int j = m-1; j >= 0; j--) {
+        	if (colsums[j] == 0.0) {
+        		docs.remove(j);
+        	}
+        }
+        
+        if (wordList.size() != n || docs.size() != m) {
+        	// recreate matrix
+        	n = wordList.size();
+        	m = docs.size();
+        	
+        	// TODO remove after debug
+        	System.err.println("Recreate matrix with " + n + " x " + m + " .");
+        	indat = new double[n][m];
+        	for (int i=0; i<wordList.size(); i++) {
+    			Word word = wordList.get(i);
+    			Map<ConciseDocument, Integer> countMap = WordUtils.wordFreqByDocs(workspace, word.getWord(), docs);
+    			for (int j=0; j<docs.size(); j++) {
+    				Integer f = countMap.get(docs.get(j));
+    				double freq = f == null ? 0.0 : Double.valueOf(f);
+    				indat[i][j] = freq;
+    			}
+    			countMap.clear();
+    		}
+        }
+        
+        return indat;
+	}
+	
 	protected void transform() throws Exception {
 		// build observations array
 		double[][] observations = new double[wordList.size()][docs.size()];
@@ -52,7 +118,10 @@ public class ConcisePCACorr extends ConciseMultivariate {
 				double freq = f == null ? 0.0 : Double.valueOf(f);
 				observations[i][j] = freq;
 			}
+			countMap.clear();
 		}
+		
+		observations = checkAvailability(observations);
 		
 		// start Principal Components Analysis
 		PCACorr pca = new PCACorr();
