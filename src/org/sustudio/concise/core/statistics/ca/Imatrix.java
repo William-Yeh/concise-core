@@ -18,19 +18,14 @@ public class Imatrix extends Matrix {
 
     private static final long serialVersionUID = 5139070126913747084L;
     
-	String[] rowIdentifier;              // Row labels.
-    String[] columnIdentifier;           // Column labels.
     double[] rowMass;                    // Row masses or weights.
     double[] columnMass;                 // Column masses or weights.
     double total;                        // Total of data values.
 
     public Imatrix (double[][] a, int n, int m, 
-                    double[] rowMass, double[] columnMass, double total,
-                    String[] rowIdentifier, String[] columnIdentifier)
+                    double[] rowMass, double[] columnMass, double total)
     {
         super (a, n, m);
-        this.rowIdentifier = rowIdentifier;
-        this.columnIdentifier = columnIdentifier;
         this.rowMass = rowMass;
         this.columnMass = columnMass;
         this.total = total;
@@ -41,14 +36,6 @@ public class Imatrix extends Matrix {
       Public Methods
      * ------------------- */
     
-    public String[] getRowIdentifier () {
-        return rowIdentifier;
-    }
-
-    public String[] getColumnIdentifier () {
-        return columnIdentifier;
-    }
-
     public double[] getRowMass () {
         return rowMass;
     }

@@ -1,8 +1,6 @@
 package org.sustudio.concise.core.statistics.ca;
 
-import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -10,6 +8,7 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.sustudio.concise.core.Workspace;
 import org.sustudio.concise.core.corpus.ConciseDocument;
 import org.sustudio.concise.core.corpus.DocumentIterator;
+import org.sustudio.concise.core.wordlister.Word;
 import org.sustudio.concise.core.wordlister.WordUtils;
 
 
@@ -24,32 +23,33 @@ public class ConciseCA {
     private int n = 0;			// Number of rows (words)
     private int m = 0;			// Number of cols (docs);
     
-    private String[] collabs;	// Column labels
-    private String[] rowlabs;	// Row labels
+    private ConciseDocument[] collabs;	// Column labels
+    private Word[] rowlabs;				// Row labels (contain global word frequency)
     
     private Imatrix principal;
 	private CorrespondenceAnalysis ca;
     
     public ConciseCA(Workspace workspace, boolean showPartOfSpeech) throws Exception {
 		this.workspace = workspace;
-		ArrayList<String> collabs = new ArrayList<String>();
+		ArrayList<ConciseDocument> collabs = new ArrayList<ConciseDocument>();
 		for (ConciseDocument cd : new DocumentIterator(workspace)) {
 			docs.add(cd);
-			collabs.add(cd.title);
+			collabs.add(cd);
 		}
-		this.collabs = collabs.toArray(new String[0]);
+		this.collabs = collabs.toArray(new ConciseDocument[0]);
 		collabs.clear();
 		m = docs.size();
 		nclusattr = m;
 	}
 	
 	public void setWords(List<String> words) throws Exception {
+		System.err.println(words);
 		double[][] indat = new double[words.size()][docs.size()];
-		ArrayList<String> rowlabs = new ArrayList<String>();
+		ArrayList<Word> rowlabs = new ArrayList<Word>();
 		for (int i = 0; i < words.size(); i++) {
-			String word = words.get(i);
+			Word word = WordUtils.getWordInCorpus(workspace, words.get(i));
 			rowlabs.add(word);
-			Map<ConciseDocument, Integer> wordMap = WordUtils.wordFreqByDocs(workspace, word, docs);
+			Map<ConciseDocument, Integer> wordMap = WordUtils.wordFreqByDocs(workspace, word.getWord(), docs);
 			for (int j = 0; j < docs.size(); j++) {
 				indat[i][j] = 0.0;
 				if (wordMap.get(docs.get(j)) != null)
@@ -57,7 +57,7 @@ public class ConciseCA {
 			}
 			wordMap.clear();
 		}
-		this.rowlabs = rowlabs.toArray(new String[0]);
+		this.rowlabs = rowlabs.toArray(new Word[0]);
 		rowlabs.clear();
 		n = words.size();
 		
@@ -102,11 +102,10 @@ public class ConciseCA {
         // Now set up "principal" object of class Imatrix:
         // this will be the input data for principal rows and columns.
         // Parameters for Imatrix:
-        // data, nrows, ncols, row-masses, col-masses, grand total,
-        // row-labels, col-labels.
+        // data, nrows, ncols, row-masses, col-masses, grand total
         
         principal = new Imatrix(indat, n, m, 
-                rowsums, colsums, total, this.rowlabs, this.collabs);
+                				rowsums, colsums, total);
 	}
 	
 	/**
@@ -138,7 +137,7 @@ public class ConciseCA {
         // row sums check
         for (int i = n-1; i >= 0; i--) {
         	if (rowsums[i] == 0.0) {
-        		ArrayUtils.remove(rowlabs, i);
+        		rowlabs = ArrayUtils.remove(rowlabs, i);
         	}
         }
         
@@ -153,15 +152,15 @@ public class ConciseCA {
         	// recreate matrix
         	n = rowlabs.length;
         	m = docs.size();
-        	collabs = new String[m];
+        	collabs = new ConciseDocument[m];
         	for (int j = 0; j < docs.size(); j++) {
-        		collabs[j] = docs.get(j).title;
+        		collabs[j] = docs.get(j);
         	}
         	System.err.println("Recreate matrix with " + n + " x " + m + " .");
         	indat = new double[n][m];
         	for (int i = 0; i < rowlabs.length; i++) {
-    			String word = rowlabs[i];
-    			Map<ConciseDocument, Integer> wordMap = WordUtils.wordFreqByDocs(workspace, word, docs);
+    			Word word = rowlabs[i];
+    			Map<ConciseDocument, Integer> wordMap = WordUtils.wordFreqByDocs(workspace, word.getWord(), docs);
     			for (int j = 0; j < docs.size(); j++) {
     				indat[i][j] = 0.0;
     				if (wordMap.get(docs.get(j)) != null)
@@ -182,13 +181,13 @@ public class ConciseCA {
 	 * 傳回文字的投影坐標（僅看 Factor1(x) 和 Factor2(y) 的投影）
 	 * @return
 	 */
-	public List<PlotData> getRowProjectionData() {
-		List<PlotData> data = new ArrayList<PlotData>();
+	public List<WordPlotData> getRowProjectionData() {
+		List<WordPlotData> data = new ArrayList<WordPlotData>();
 		double[][] rowproj = ca.getRowProjections();
 		int xAxisIndex = 1;
 		int yAxisIndex = 2;
 		for (int i = 0; i < rowlabs.length; i++) {
-			PlotData d = new PlotData(rowlabs[i], rowproj[i][xAxisIndex], rowproj[i][yAxisIndex]);
+			WordPlotData d = new WordPlotData(rowlabs[i], rowproj[i][xAxisIndex], rowproj[i][yAxisIndex]);
 			data.add(d);
 		}
 		return data;
@@ -198,13 +197,13 @@ public class ConciseCA {
 	 * 傳回文件的投影坐標（僅看 Factor1(x) 和 Factor2(y) 的投影）
 	 * @return
 	 */
-	public List<PlotData> getColProjectionData() {
-		List<PlotData> data = new ArrayList<PlotData>();
+	public List<DocumentPlotData> getColProjectionData() {
+		List<DocumentPlotData> data = new ArrayList<DocumentPlotData>();
 		double[][] colproj = ca.getColumnProjections();
 		int xAxisIndex = 1;
 		int yAxisIndex = 2;
 		for (int i = 0; i < collabs.length; i++) {
-			PlotData d = new PlotData(collabs[i], colproj[i][xAxisIndex], colproj[i][yAxisIndex]);
+			DocumentPlotData d = new DocumentPlotData(collabs[i], colproj[i][xAxisIndex], colproj[i][yAxisIndex]);
 			data.add(d);
 		}
 		return data;

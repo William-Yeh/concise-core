@@ -1,5 +1,6 @@
 package org.sustudio.concise.core.wordlister;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -43,6 +44,19 @@ public class WordUtils {
 			}
 		}
 		return map;
+	}
+	
+	
+	public static Word getWordInCorpus(Workspace workspace, String term) throws IOException {
+		Word word = new Word(term, 0, 0);
+		Terms terms = MultiFields.getTerms(workspace.getIndexReader(INDEX.DOCUMENT), ConciseField.CONTENT.field());
+		TermsEnum te = terms.iterator(null);
+		if (te.seekExact(new BytesRef(term)))
+		{
+			word.setTotalTermFreq(te.totalTermFreq());
+			word.setDocFreq(te.docFreq());
+		}
+		return word;
 	}
 	
 }
