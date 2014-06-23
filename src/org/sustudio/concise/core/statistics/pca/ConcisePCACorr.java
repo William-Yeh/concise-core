@@ -18,6 +18,7 @@ public class ConcisePCACorr extends ConciseMultivariate {
 	private final ArrayList<ConciseDocument> docs = new ArrayList<ConciseDocument>();
 	private final ArrayList<Word> wordList = new ArrayList<Word>();
 	private final List<WordPlotData> rowProjectionData = new ArrayList<WordPlotData>();
+	private final List<DocumentPlotData> colProjectionData = new ArrayList<DocumentPlotData>();
 	private double[] eigenValues = null;
 	
 	public ConcisePCACorr(Workspace workspace, boolean showPartOfSpeech) {
@@ -128,11 +129,17 @@ public class ConcisePCACorr extends ConciseMultivariate {
 		pca.setObservations(observations);
 		pca.transform();
 		eigenValues = pca.getEigenValues();
-		double[][] principalComponents = pca.getPrincipalComponents();
+		double[][] rowproj = pca.getRowProjections();
 		for (int i=0; i<wordList.size(); i++) {
 			Word word = wordList.get(i);
-			double[] pc = principalComponents[i];
+			double[] pc = rowproj[i];
 			rowProjectionData.add(new WordPlotData(word, pc[0], pc[1]));
+		}
+		double[][] colproj = pca.getColProjections();
+		for (int j=0; j<docs.size(); j++) {
+			ConciseDocument doc = docs.get(j);
+			double[] pc = colproj[j];
+			colProjectionData.add(new DocumentPlotData(doc, pc[0], pc[1]));
 		}
 		pca.clear();
 		docs.clear();
@@ -143,7 +150,7 @@ public class ConcisePCACorr extends ConciseMultivariate {
 	}
 	
 	public List<DocumentPlotData> getColProjectionData() {
-		return null;
+		return colProjectionData;
 	}
 
 	/**

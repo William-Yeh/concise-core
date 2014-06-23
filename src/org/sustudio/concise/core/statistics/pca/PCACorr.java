@@ -18,7 +18,8 @@ import Jama.Matrix;
 public class PCACorr {
 	
 	private transient Matrix observations = null;
-	private transient Matrix principalComponents = null;
+	private transient Matrix rowProjections = null;
+	private transient Matrix colProjections = null;
 	private transient Matrix eigenVectors = null;
 	private transient double[] eigenValues = null;
 	
@@ -29,7 +30,8 @@ public class PCACorr {
 	 */
 	public void clear() {
 		observations = null;
-		principalComponents = null;
+		rowProjections = null;
+		colProjections = null;
 		eigenVectors = null;
 		eigenValues = null;
 		
@@ -56,11 +58,19 @@ public class PCACorr {
 	}
 	
 	/**
-	 * returns a copy of the principalComponents matrix as a 2d array of doubles
+	 * returns a copy of the row projections matrix as a 2d array of doubles
 	 * @return
 	 */
-	public double[][] getPrincipalComponents() {
-		return principalComponents.getArrayCopy();
+	public double[][] getRowProjections() {
+		return rowProjections.getArrayCopy();
+	}
+	
+	/**
+	 * returns a copy of the column projections matrix as a 2d array of doubles
+	 * @return
+	 */
+	public double[][] getColProjections() {
+		return colProjections.getArrayCopy();
 	}
 	
 	/**
@@ -115,7 +125,25 @@ public class PCACorr {
 		
 		//---------------------------------------------------
 		// Principal Components - row projections in new space, X U  Dims: (n x m) x (m x m)
-		principalComponents = observations.times(eigenVectors);		
+		rowProjections = observations.times(eigenVectors);
+		
+		// Col projections (X'X) U    (4x4) x4  And col-wise div. by sqrt(evals)
+		colProjections = SSCP.times(eigenVectors);
+		
+		// We need to leave colProjections Matrix class and instead use double array
+		double[][] ynew = colProjections.getArray();
+		int m = observations.getColumnDimension();
+		for (int j1 = 0; j1 < m; j1++) {
+			for (int j2 = 0; j2 < m; j2++) {
+				if (eigenValues[j2] > 0.00005) {
+					ynew[j1][j2] = ynew[j1][j2]/Math.sqrt(eigenValues[j2]);
+				}
+				if (eigenValues[j2] <= 0.00005) {
+					ynew[j1][j2] = 0.0;
+				}
+			}
+		}
+		colProjections = new Matrix(ynew);
 	}
 	
 	/**

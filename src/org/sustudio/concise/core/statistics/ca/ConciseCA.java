@@ -19,8 +19,8 @@ public class ConciseCA extends ConciseMultivariate {
 
 	private final ArrayList<ConciseDocument> docs = new ArrayList<ConciseDocument>();
 	
-	private int nclusters = 3;  // Number of clusters to be analyzed
-    private int nclusattr; 		// Number of attribute/variable clusters to anal.
+	//private int nclusters = 3;  // Number of clusters to be analyzed
+    //private int nclusattr; 		// Number of attribute/variable clusters to anal.
     
     private int n = 0;			// Number of rows (words)
     private int m = 0;			// Number of cols (docs);
@@ -45,7 +45,7 @@ public class ConciseCA extends ConciseMultivariate {
 		this.collabs = collabs.toArray(new ConciseDocument[0]);
 		collabs.clear();
 		m = docs.size();
-		nclusattr = m;
+		//nclusattr = m;
 		
 		// TODO remove after debug
 		System.err.println(words);

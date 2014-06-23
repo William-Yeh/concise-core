@@ -6,6 +6,9 @@ import org.sustudio.concise.core.Workspace;
 
 public abstract class ConciseMultivariate {
 
+	public static final double SMALL = -1.0e10;
+    public static final double MAXVAL = 1.0e12;
+	
 	protected final Workspace workspace;
 	protected final boolean showPartOfSpeech;
 	

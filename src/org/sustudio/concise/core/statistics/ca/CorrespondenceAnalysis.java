@@ -27,7 +27,6 @@ public class CorrespondenceAnalysis {
 	private transient double[][] colcorr;	// column correlations
 	
 	
-	
 	public CorrespondenceAnalysis(Imatrix principal) {
 		
 		n		= principal.getRowDimension();
@@ -217,57 +216,57 @@ public class CorrespondenceAnalysis {
 	}
 	
 	/**
-	 * returns a copy of matrix of cross-products to be analyzed
+	 * returns matrix of cross-products to be analyzed
 	 * @return
 	 */
 	public double[][] getCP() {
-		return CP.clone();
+		return CP;
 	}
 	
 	/**
-	 * returns a copy of EigenValues
+	 * returns EigenValues
 	 * @return
 	 */
 	public double[] getEigenValues() {
-		return EigenValues.clone();
+		return EigenValues;
 	}
 	
 	/**
-	 * returns a copy of EigenVectors
+	 * returns EigenVectors
 	 * @return
 	 */
 	public double[][] getEigenVectors() {
-		return EigenVectors.clone();
+		return EigenVectors;
 	}
 	
 	/**
-	 * returns a copy of rates of inertia associated with eigenvectors
+	 * returns rates of inertia associated with eigenvectors
 	 * @return
 	 */
 	public double[] getRates() {
-		return rates.clone();
+		return rates;
 	}
 	
 	/**
-	 * returns a copy of row projections
+	 * returns row projections
 	 * @return
 	 */
 	public double[][] getRowProjections() {
 		if (rowproj == null) {
 			calculateProjections();
 		}
-		return rowproj.clone();
+		return rowproj;
 	}
 	
 	/**
-	 * returns a copy of column projections
+	 * returns column projections
 	 * @return
 	 */
 	public double[][] getColumnProjections() {
 		if (colproj == null) {
 			calculateProjections();
 		}
-		return colproj.clone();
+		return colproj;
 	}
 	
 	/**
@@ -282,38 +281,36 @@ public class CorrespondenceAnalysis {
 	}
 	
 	/**
-	 * returns a copy of column contributions
+	 * returns column contributions
 	 * @return
 	 */
 	public double[][] getColumnContributions() {
 		if (colcntr == null) {
-			if (rowproj == null || colproj == null) {
-				calculateProjections();
-			}
+			calculateContributions();
 		}
-		return colcntr.clone();
+		return colcntr;
 	}
 	
 	/**
-	 * returns a copy of row correlations
+	 * returns row correlations
 	 * @return
 	 */
 	public double[][] getRowCorrelations() {
 		if (rowcorr == null) {
 			calculateCorrelations();
 		}
-		return rowcorr.clone();
+		return rowcorr;
 	}
 	
 	/**
-	 * returns a copy of column correlations
+	 * returns column correlations
 	 * @return
 	 */
 	public double[][] getColumnCorrelations() {
 		if (colcorr == null) {
 			calculateCorrelations();
 		}
-		return colcorr.clone();
+		return colcorr;
 	}
 	
 	/**
@@ -334,4 +331,5 @@ public class CorrespondenceAnalysis {
 		// run the java garbage collector
 		Runtime.getRuntime().gc();
 	}
+		
 }
