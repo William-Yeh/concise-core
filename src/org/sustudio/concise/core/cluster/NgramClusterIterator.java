@@ -41,7 +41,7 @@ public class NgramClusterIterator extends ClusterIterator {
 			Document doc = workspace.getIndexReader(INDEX.DOCUMENT).document(i);
 			if (doc == null) continue;
 			
-			TokenStream tokenStream = doc.getField(ConciseField.CONTENT.field()).tokenStream(analyzer);
+			TokenStream tokenStream = doc.getField(ConciseField.CONTENT.field()).tokenStream(analyzer, null);
 			CharTermAttribute termAttr = tokenStream.addAttribute(CharTermAttribute.class);
 			
 			tokenStream.reset();

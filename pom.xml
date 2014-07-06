@@ -17,7 +17,7 @@
     </plugins>
   </build>
   <properties>
-  	<lucene-version>4.8.1</lucene-version>
+  	<lucene-version>4.9.0</lucene-version>
   </properties>
   <dependencies>
   	<dependency>
@@ -63,7 +63,7 @@
   	<dependency>
   		<groupId>org.apache.tika</groupId>
   		<artifactId>tika-parsers</artifactId>
-  		<version>1.4</version>
+  		<version>1.5</version>
   	</dependency>
   	<dependency>
   		<groupId>edu.stanford.nlp</groupId>

@@ -14,7 +14,7 @@ public class Config {
 	
 	
 	/** current Lucene version */
-	public static final Version LUCENE_VERSION = Version.LUCENE_48;
+	public static final Version LUCENE_VERSION = Version.LUCENE_4_9;
 	
 	/** index folder */
 	public static final String INDEX_FOLDER = "idx.conciseindex";
