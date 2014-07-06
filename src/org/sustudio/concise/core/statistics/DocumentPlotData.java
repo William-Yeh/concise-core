@@ -2,32 +2,18 @@ package org.sustudio.concise.core.statistics;
 
 import org.sustudio.concise.core.corpus.ConciseDocument;
 
-public class DocumentPlotData {
+public class DocumentPlotData extends PlotData<ConciseDocument> {
 	
-	private final ConciseDocument doc;
-	private final double xCoordinate;
-	private final double yCoordinate;
-
 	public DocumentPlotData(ConciseDocument doc, double xCoordinate, double yCoordinate) {
-		this.doc = doc;
-		this.xCoordinate = xCoordinate;
-		this.yCoordinate = yCoordinate;
+		super(doc, xCoordinate, yCoordinate);
 	}
 	
 	public ConciseDocument getDoc() {
-		return doc;
-	}
-	
-	public double getX() {
-		return xCoordinate;
-	}
-	
-	public double getY() {
-		return yCoordinate;
+		return get();
 	}
 	
 	public String toString() {
-		return doc.title + " (" + xCoordinate + "," + yCoordinate + ")";
+		return getDoc().title + " (" + getX() + "," + getY() + ")";
 	}
 
 }

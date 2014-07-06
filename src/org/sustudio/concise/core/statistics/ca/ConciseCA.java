@@ -37,23 +37,23 @@ public class ConciseCA extends ConciseMultivariate {
 	
 	public void setWords(List<String> words) throws Exception {
 		
-		ArrayList<ConciseDocument> collabs = new ArrayList<ConciseDocument>();
+		ArrayList<ConciseDocument> rowlabss = new ArrayList<ConciseDocument>();
 		for (ConciseDocument cd : new DocumentIterator(workspace)) {
 			docs.add(cd);
-			collabs.add(cd);
+			rowlabss.add(cd);
 		}
-		this.collabs = collabs.toArray(new ConciseDocument[0]);
-		collabs.clear();
+		this.collabs = rowlabss.toArray(new ConciseDocument[0]);
+		rowlabss.clear();
 		m = docs.size();
 		//nclusattr = m;
 		
 		// TODO remove after debug
 		System.err.println(words);
 		double[][] indat = new double[words.size()][docs.size()];
-		ArrayList<Word> rowlabs = new ArrayList<Word>();
+		ArrayList<Word> collabs = new ArrayList<Word>();
 		for (int i = 0; i < words.size(); i++) {
 			Word word = WordUtils.getWordInCorpus(workspace, words.get(i));
-			rowlabs.add(word);
+			collabs.add(word);
 			Map<ConciseDocument, Integer> wordMap = WordUtils.wordFreqByDocs(workspace, word.getWord(), docs);
 			for (int j = 0; j < docs.size(); j++) {
 				indat[i][j] = 0.0;
@@ -62,8 +62,8 @@ public class ConciseCA extends ConciseMultivariate {
 			}
 			wordMap.clear();
 		}
-		this.rowlabs = rowlabs.toArray(new Word[0]);
-		rowlabs.clear();
+		this.rowlabs = collabs.toArray(new Word[0]);
+		collabs.clear();
 		n = words.size();
 		
 		// 必須要先檢查 row sums 和 column sums，兩者都必須 > 0
@@ -112,8 +112,10 @@ public class ConciseCA extends ConciseMultivariate {
         principal = new Imatrix(indat, n, m, 
                 				rowsums, colsums, total);
         
-        // doing analysis
-        analyze();
+        if (n == 0 || m == 0) {
+        	throw new Exception("invalid matrix");
+        }
+        ca = new CorrespondenceAnalysis(principal);
 	}
 	
 	/**
@@ -156,7 +158,7 @@ public class ConciseCA extends ConciseMultivariate {
         	}
         }
         
-        if (rowlabs.length != n || docs.size() != m) {
+        if (rowlabs.length != m || docs.size() != n) {
         	// recreate matrix
         	n = rowlabs.length;
         	m = docs.size();
@@ -180,10 +182,6 @@ public class ConciseCA extends ConciseMultivariate {
         }
         
         return indat;
-	}
-	
-	public void analyze() {
-		ca = new CorrespondenceAnalysis(principal);
 	}
 	
 	/**
@@ -218,12 +216,24 @@ public class ConciseCA extends ConciseMultivariate {
 		return data;
 	}
 	
-	public double[] getEigenValues() {
-		return ca.getEigenValues();
+	public double[] getEigenvalues() {
+		return ca.getEigenvalues();
 	}
 	
-	public double[] getRatesOfInertia() {
+	public double[] getRates() {
 		return ca.getRates();
+	}
+	
+	public Word[] getWords() {
+		return rowlabs;
+	}
+	
+	public ConciseDocument[] getDocs() {
+		return collabs;
+	}
+	
+	public CAResult getResult() {
+		return new CAResult(ca, rowlabs, collabs);
 	}
 	
 }

@@ -2,32 +2,17 @@ package org.sustudio.concise.core.statistics;
 
 import org.sustudio.concise.core.wordlister.Word;
 
-public class WordPlotData {
-	
-	private final Word word;
-	private final double xCoordinate;
-	private final double yCoordinate;
+public class WordPlotData extends PlotData<Word> {
 
-	public WordPlotData(Word word, double xCoordinate, double yCoordinate) {
-		this.word = word;
-		this.xCoordinate = xCoordinate;
-		this.yCoordinate = yCoordinate;
-	}
+	public WordPlotData(Word type, double xCoordinate, double yCoordinate) {
+		super(type, xCoordinate, yCoordinate);
+	}	
 	
 	public Word getWord() {
-		return word;
-	}
-	
-	public double getX() {
-		return xCoordinate;
-	}
-	
-	public double getY() {
-		return yCoordinate;
+		return get();
 	}
 	
 	public String toString() {
-		return word.getWord() + " (" + xCoordinate + "," + yCoordinate + ")";
+		return getWord().word + " (" + getX() + "," + getY() + ")";
 	}
-
 }

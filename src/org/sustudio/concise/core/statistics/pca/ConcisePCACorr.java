@@ -16,30 +16,52 @@ import org.sustudio.concise.core.wordlister.WordUtils;
 public class ConcisePCACorr extends ConciseMultivariate {
 
 	private final ArrayList<ConciseDocument> docs = new ArrayList<ConciseDocument>();
-	private final ArrayList<Word> wordList = new ArrayList<Word>();
+	private final ArrayList<Word> words = new ArrayList<Word>();
 	private final List<WordPlotData> rowProjectionData = new ArrayList<WordPlotData>();
-	private final List<DocumentPlotData> colProjectionData = new ArrayList<DocumentPlotData>();
-	private double[] eigenValues = null;
+	private final List<DocumentPlotData> colProjectionDatas = new ArrayList<DocumentPlotData>();
+	private transient double[][] observations = null;
+	private transient double[] eigenValues = null;
+	private PCAResult detail;
 	
 	public ConcisePCACorr(Workspace workspace, boolean showPartOfSpeech) {
 		super(workspace, showPartOfSpeech);
 	}
 	
-	public void setWords(List<String> words) throws Exception {
+	public void setWords(List<String> wordsList) throws Exception {
 		// gathering info of documents (x-Axis)
 		for (ConciseDocument cd : new DocumentIterator(workspace)) {
 			docs.add(cd);
 		}
 		
 		// gather info of words (y-Axis)
-		for (String strWord : words) {
+		for (String strWord : wordsList) {
 			Word w = WordUtils.getWordInCorpus(workspace, strWord);
 			if (w.totalTermFreq > 0) {
-				wordList.add(w);
+				words.add(w);
 			}
 		}
-		
+	
+		// build observations array
+		observations = checkAvailability(createMatrix());
+		if (observations.length == 0 || observations[0].length == 0) {
+			throw new Exception("invalid matrix");
+		}
 		transform();
+	}
+	
+	private double[][] createMatrix() throws Exception {
+		double[][] data = new double[words.size()][docs.size()];
+		for (int i=0; i<words.size(); i++) {
+			Word word = words.get(i);
+			Map<ConciseDocument, Integer> countMap = WordUtils.wordFreqByDocs(workspace, word.getWord(), docs);
+			for (int j=0; j<docs.size(); j++) {
+				Integer f = countMap.get(docs.get(j));
+				double freq = f == null ? 0.0 : Double.valueOf(f);
+				data[i][j] = freq;
+			}
+			countMap.clear();
+		}
+		return data;
 	}
 	
 	/**
@@ -74,7 +96,7 @@ public class ConcisePCACorr extends ConciseMultivariate {
         // row sums check
         for (int i = n-1; i >= 0; i--) {
         	if (rowsums[i] == 0.0) {
-        		wordList.remove(i);
+        		words.remove(i);
         	}
         }
         
@@ -85,64 +107,40 @@ public class ConcisePCACorr extends ConciseMultivariate {
         	}
         }
         
-        if (wordList.size() != n || docs.size() != m) {
+        if (words.size() != n || docs.size() != m) {
         	// recreate matrix
-        	n = wordList.size();
+        	n = words.size();
         	m = docs.size();
         	
         	// TODO remove after debug
         	System.err.println("Recreate matrix with " + n + " x " + m + " .");
-        	indat = new double[n][m];
-        	for (int i=0; i<wordList.size(); i++) {
-    			Word word = wordList.get(i);
-    			Map<ConciseDocument, Integer> countMap = WordUtils.wordFreqByDocs(workspace, word.getWord(), docs);
-    			for (int j=0; j<docs.size(); j++) {
-    				Integer f = countMap.get(docs.get(j));
-    				double freq = f == null ? 0.0 : Double.valueOf(f);
-    				indat[i][j] = freq;
-    			}
-    			countMap.clear();
-    		}
+        	indat = createMatrix();
         }
         
         return indat;
 	}
 	
 	protected void transform() throws Exception {
-		// build observations array
-		double[][] observations = new double[wordList.size()][docs.size()];
-		for (int i=0; i<wordList.size(); i++) {
-			Word word = wordList.get(i);
-			Map<ConciseDocument, Integer> countMap = WordUtils.wordFreqByDocs(workspace, word.getWord(), docs);
-			for (int j=0; j<docs.size(); j++) {
-				Integer f = countMap.get(docs.get(j));
-				double freq = f == null ? 0.0 : Double.valueOf(f);
-				observations[i][j] = freq;
-			}
-			countMap.clear();
-		}
-		
-		observations = checkAvailability(observations);
 		
 		// start Principal Components Analysis
 		PCACorr pca = new PCACorr();
 		pca.setObservations(observations);
 		pca.transform();
-		eigenValues = pca.getEigenValues();
-		double[][] rowproj = pca.getRowProjections();
-		for (int i=0; i<wordList.size(); i++) {
-			Word word = wordList.get(i);
+		eigenValues = pca.getEigenvalues();
+		double[][] rowproj = pca.getRowPrincipalComponents();
+		for (int i=0; i<words.size(); i++) {
+			Word word = words.get(i);
 			double[] pc = rowproj[i];
 			rowProjectionData.add(new WordPlotData(word, pc[0], pc[1]));
 		}
-		double[][] colproj = pca.getColProjections();
+		double[][] colproj = pca.getColumnPrincipalComponents();
 		for (int j=0; j<docs.size(); j++) {
 			ConciseDocument doc = docs.get(j);
 			double[] pc = colproj[j];
-			colProjectionData.add(new DocumentPlotData(doc, pc[0], pc[1]));
+			colProjectionDatas.add(new DocumentPlotData(doc, pc[0], pc[1]));
 		}
+		detail = new PCAResult(pca, getWords(), getDocs());
 		pca.clear();
-		docs.clear();
 	}
 	
 	public List<WordPlotData> getRowProjectionData() {
@@ -150,14 +148,14 @@ public class ConcisePCACorr extends ConciseMultivariate {
 	}
 	
 	public List<DocumentPlotData> getColProjectionData() {
-		return colProjectionData;
+		return colProjectionDatas;
 	}
 
 	/**
 	 * returns the EigenValues of the principal components analysis
 	 * @return
 	 */
-	public double[] getEigenValues() {
+	public double[] getEigenvalues() {
 		return eigenValues;
 	}
 	
@@ -165,7 +163,7 @@ public class ConcisePCACorr extends ConciseMultivariate {
 	 * returns the percentage explained by each dimension
 	 * @return
 	 */
-	public double[] getRatesOfInertia() {
+	public double[] getRates() {
 		double total = 0.0;
 		for (double eig : eigenValues) {
 			total += eig;
@@ -177,4 +175,15 @@ public class ConcisePCACorr extends ConciseMultivariate {
 		return rates;
 	}
 	
+	public Word[] getWords() {
+		return words.toArray(new Word[0]);
+	}
+	
+	public ConciseDocument[] getDocs() {
+		return docs.toArray(new ConciseDocument[0]);
+	}
+	
+	public PCAResult getResult() {
+		return detail;
+	}
 }

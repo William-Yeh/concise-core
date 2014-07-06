@@ -1,5 +1,7 @@
 package org.sustudio.concise.core.statistics.ca;
 
+import org.apache.commons.lang3.ArrayUtils;
+
 import Jama.EigenvalueDecomposition;
 import Jama.Matrix;
 
@@ -7,13 +9,14 @@ public class CorrespondenceAnalysis {
 	
 	public static final double EPS = 1.0e-8;
 
+	private final Imatrix principal;
 	private final int n;
 	private final int m;
 	private final double[] rowmass;
 	private final double[] colmass;
 	private final double[][] data;
 	
-	private double trace;						// trace
+	private transient double trace;				// trace
 	private transient double[][] CP;			// sums of squares and cross-products matrix to be diagonalized
 	private transient double[] EigenValues;		// eigenvalues
 	private transient double[][] EigenVectors;	// eigenvectors
@@ -29,6 +32,7 @@ public class CorrespondenceAnalysis {
 	
 	public CorrespondenceAnalysis(Imatrix principal) {
 		
+		this.principal = principal;
 		n		= principal.getRowDimension();
 		m		= principal.getColumnDimension();
 		rowmass	= principal.getRowMass();
@@ -53,14 +57,13 @@ public class CorrespondenceAnalysis {
         // We will use Jama matrix class because it has the methods needed.
         Matrix cp = new Matrix(CP);
         
-        
         // Diagonalization or Eigen Decomposition (Eigen Reduction)
         
         // Eigen decomposition
-        EigenvalueDecomposition evaldec = cp.eig();
+        EigenvalueDecomposition evaldec = cp.eig();        
         Matrix evecs = evaldec.getV();
         double[] evals = evaldec.getRealEigenvalues();
-
+        
         // Trace is adjusted by a value 1.0 because always in CA,
         // the first eigenvalue is trivially 1-valued.
         trace = cp.trace() - 1.0;
@@ -86,7 +89,6 @@ public class CorrespondenceAnalysis {
         for (int j = 1; j < EigenValues.length; j++) {
             rates[j] = EigenValues[j]/trace;
         }
-		
 	}
 	
 	/**
@@ -227,15 +229,15 @@ public class CorrespondenceAnalysis {
 	 * returns EigenValues
 	 * @return
 	 */
-	public double[] getEigenValues() {
-		return EigenValues;
+	public double[] getEigenvalues() {
+		return ArrayUtils.remove(EigenValues, 0);
 	}
 	
 	/**
 	 * returns EigenVectors
 	 * @return
 	 */
-	public double[][] getEigenVectors() {
+	public double[][] getEigenvectors() {
 		return EigenVectors;
 	}
 	
@@ -244,7 +246,7 @@ public class CorrespondenceAnalysis {
 	 * @return
 	 */
 	public double[] getRates() {
-		return rates;
+		return ArrayUtils.remove(rates, 0);
 	}
 	
 	/**
@@ -311,6 +313,10 @@ public class CorrespondenceAnalysis {
 			calculateCorrelations();
 		}
 		return colcorr;
+	}
+	
+	public Imatrix getPrincipalMatrix() {
+		return principal;
 	}
 	
 	/**

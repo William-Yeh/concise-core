@@ -1,5 +1,7 @@
 package org.sustudio.concise.core.statistics.pca;
 
+import java.util.Arrays;
+
 import org.apache.commons.lang3.ArrayUtils;
 
 import Jama.EigenvalueDecomposition;
@@ -61,7 +63,7 @@ public class PCACorr {
 	 * returns a copy of the row projections matrix as a 2d array of doubles
 	 * @return
 	 */
-	public double[][] getRowProjections() {
+	public double[][] getRowPrincipalComponents() {
 		return rowProjections.getArrayCopy();
 	}
 	
@@ -69,7 +71,7 @@ public class PCACorr {
 	 * returns a copy of the column projections matrix as a 2d array of doubles
 	 * @return
 	 */
-	public double[][] getColProjections() {
+	public double[][] getColumnPrincipalComponents() {
 		return colProjections.getArrayCopy();
 	}
 	
@@ -77,8 +79,8 @@ public class PCACorr {
 	 * returns a copy of the (real) eigenValues vector
 	 * @return
 	 */
-	public double[] getEigenValues() {
-		return eigenValues.clone();
+	public double[] getEigenvalues() {
+		return eigenValues;
 	}
 	
 	/**
@@ -108,12 +110,14 @@ public class PCACorr {
 		double[] evals = evaldec.getRealEigenvalues();
 		
 		// reverse order of evals into Evals
-		eigenValues = evals.clone();
+		eigenValues = new double[evals.length];
+		System.arraycopy(evals, 0, eigenValues, 0, evals.length);
 		ArrayUtils.reverse(eigenValues);
+		eigenValues = Arrays.copyOf(eigenValues, Math.min(observations.getRowDimension(), observations.getColumnDimension()));
 		
 		// reverse order of Matrix evecs into Matrix Evecs
 		double[][] tempold = evecs.getArray();
-		double[][] tempnew = new double[observations.getColumnDimension()][observations.getColumnDimension()];
+		double[][] tempnew = new double[evecs.getRowDimension()][evecs.getColumnDimension()];
 		for (int j1=0; j1 < tempnew.length; j1++) 
 		{
 			for (int j2 = 0; j2 < tempnew.length; j2++)
@@ -122,6 +126,8 @@ public class PCACorr {
 			}
 		}
 		eigenVectors = new Matrix(tempnew);
+		// This is not a good way to trim eigenvectors
+		eigenVectors = eigenVectors.getMatrix(0, eigenVectors.getRowDimension()-1, 0, Math.min(observations.getRowDimension(), observations.getColumnDimension())-1);
 		
 		//---------------------------------------------------
 		// Principal Components - row projections in new space, X U  Dims: (n x m) x (m x m)
@@ -132,9 +138,8 @@ public class PCACorr {
 		
 		// We need to leave colProjections Matrix class and instead use double array
 		double[][] ynew = colProjections.getArray();
-		int m = observations.getColumnDimension();
-		for (int j1 = 0; j1 < m; j1++) {
-			for (int j2 = 0; j2 < m; j2++) {
+		for (int j1 = 0; j1 < colProjections.getRowDimension(); j1++) {
+			for (int j2 = 0; j2 < colProjections.getColumnDimension(); j2++) {
 				if (eigenValues[j2] > 0.00005) {
 					ynew[j1][j2] = ynew[j1][j2]/Math.sqrt(eigenValues[j2]);
 				}
@@ -148,7 +153,7 @@ public class PCACorr {
 	
 	/**
 	 * Method for standardizing the input data <p>
-	 * Note the formalas used (since these very between implementations): <br>
+	 * Note the formulas used (since these very between implementations): <br>
 	 * reduction: (vect - meanvect)/sqrt(nrow)*colstdev <br>
 	 * colstdev: sum_cols ((vect - meanvect)^2/nrow) <br>
 	 * if colstdev is close to 0, then set it to 1. <p>

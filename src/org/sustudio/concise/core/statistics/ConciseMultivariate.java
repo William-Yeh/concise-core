@@ -19,7 +19,6 @@ public abstract class ConciseMultivariate {
 	
 	public abstract void setWords(List<String> words) throws Exception;
 	
-	
 	/**
 	 * 傳回文字的投影坐標（僅看 Factor1(x) 和 Factor2(y) 的投影）
 	 * @return
@@ -35,10 +34,17 @@ public abstract class ConciseMultivariate {
 	
 	
 	/**
-	 * returns the EigenValues of the principal components analysis
+	 * returns the Eigenvalues
 	 * @return
 	 */
-	public abstract double[] getEigenValues();
+	public abstract double[] getEigenvalues();
 	
-	public abstract double[] getRatesOfInertia();
+	/**
+	 * returns rates of inertia (or explained)
+	 * @return
+	 */
+	public abstract double[] getRates();
+	
+	
+	public abstract Object getResult();
 }
