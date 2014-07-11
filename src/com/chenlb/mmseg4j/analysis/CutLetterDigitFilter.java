@@ -17,6 +17,7 @@ import com.chenlb.mmseg4j.Word;
  * 切分“字母和数”混在一起的过虑器。比如：mb991ch 切为 "mb 991 ch"
  *
  * @author chenlb 2009-10-14 下午04:03:18
+ * @deprecated
  */
 public class CutLetterDigitFilter extends TokenFilter {
 
@@ -37,9 +38,9 @@ public class CutLetterDigitFilter extends TokenFilter {
 	}
 
 	//兼容 lucene 2.9
-	public Token next(Token reusableToken) throws IOException {
-		return nextToken(reusableToken);
-	}
+	//public Token next(Token reusableToken) throws IOException {
+	//	return nextToken(reusableToken);
+	//}
 
 	private Token nextToken(Token reusableToken) throws IOException {
 		assert reusableToken != null;
@@ -134,9 +135,8 @@ public class CutLetterDigitFilter extends TokenFilter {
 		}
 	}
 
-    public void end() {
-    	try {
-    		reset();
-    	} catch(IOException e) {}
+    public void end() throws IOException {
+    	super.end();
+    	tokenQueue.clear();
     }
 }

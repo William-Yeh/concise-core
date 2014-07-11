@@ -12,6 +12,7 @@ import org.apache.lucene.analysis.tokenattributes.TypeAttribute;
  * lucene 3.0 从 TokenStream 得到 Token 比较麻烦。
  *
  * @author chenlb 2010-10-7下午10:07:10
+ * @deprecated
  */
 public class TokenUtils {
 
