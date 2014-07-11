@@ -31,28 +31,30 @@ public class DocumentIterator implements Iterator<ConciseDocument>, Iterable<Con
 	public DocumentIterator(Workspace workspace, INDEX indexType) throws Exception {
 		this.reader = workspace.getIndexReader(indexType);
 		this.originalFolder = workspace.getOriginalDocFolder(indexType);
-		this.liveDocs = MultiFields.getLiveDocs(reader);
+		this.liveDocs = reader == null ? null : MultiFields.getLiveDocs(reader);
 		nextDocument = readNextDocument();
 	}
 
 	private ConciseDocument readNextDocument() throws Exception 
 	{
-		ConciseDocument cd = null;
-		while (docID < reader.maxDoc()) 
-		{				
-			// check if document is deleted
-			// see LUCENE-2600 at https://lucene.apache.org/core/4_0_0/MIGRATE.html
-			if (liveDocs != null && !liveDocs.get(docID)) {
+		if (reader != null) {
+			ConciseDocument cd = null;
+			while (docID < reader.maxDoc()) 
+			{				
+				// check if document is deleted
+				// see LUCENE-2600 at https://lucene.apache.org/core/4_0_0/MIGRATE.html
+				if (liveDocs != null && !liveDocs.get(docID)) {
+					docID++;
+					continue;
+				}
+				
+				Document doc = reader.document(docID);
+				cd = new ConciseDocument(doc);
+				cd.docID = docID;
+				cd.documentFile = new File(originalFolder, cd.filename);
 				docID++;
-				continue;
+				return cd;
 			}
-			
-			Document doc = reader.document(docID);
-			cd = new ConciseDocument(doc);
-			cd.docID = docID;
-			cd.documentFile = new File(originalFolder, cd.filename);
-			docID++;
-			return cd;
 		}
 		return null;
 	}
