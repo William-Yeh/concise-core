@@ -55,9 +55,6 @@ public class DocumentWriter extends IndexWriter {
 	public void deleteAll() throws IOException {
 		super.deleteAll();
 		forceMerge(1);
-		// 刪掉原始檔案的資料夾再重建
-		FileUtils.deleteDirectory(originalFolder);
-		originalFolder.mkdir();
 	}
 	
 	/**

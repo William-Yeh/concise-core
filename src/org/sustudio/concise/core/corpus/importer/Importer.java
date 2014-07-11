@@ -40,6 +40,7 @@ public class Importer extends DocumentWriter {
 	private MaxentTagger posTagger;
 	private Analyzer indexAnalyzer;
 	private int fileCount = 0;
+	private boolean copyFiles = true;
 	
 	/**
 	 * default constructor.
@@ -53,6 +54,22 @@ public class Importer extends DocumentWriter {
 	
 	public Importer(Workspace workspace, INDEX indexType) throws IOException {
 		super(workspace, indexType);
+	}
+	
+	/**
+	 * 設定要不要將原始檔案複製到<code>Workspace</code>的<code>OriginalDocument</code>中
+	 * @param copyFiles
+	 */
+	public void setCopyFiles(boolean copyFiles) {
+		this.copyFiles = copyFiles;
+	}
+	
+	/**
+	 * 傳回是否將檔案到<code>Workspace</code>的<code>OriginalDocument</code>中
+	 * @return 是否將檔案到<code>Workspace</code>的<code>OriginalDocument</code>中
+	 */
+	public boolean getCopyFiles() {
+		return copyFiles;
 	}
 
 	/**
@@ -147,10 +164,16 @@ public class Importer extends DocumentWriter {
 	
 	
 	protected Document writeDocument(File sourceFile, boolean isTokenized, String content, int numWords, int numParas) throws IOException {
-		// copy sourceFile to ORIGINAL folder
-		File targetFile = ConciseFileUtils.getUniqueFile(
-				new File(originalFolder, sourceFile.getName()));
-		FileUtils.copyFile(sourceFile, targetFile);
+		final File targetFile;
+		if (copyFiles) {
+			// copy sourceFile to ORIGINAL folder
+			targetFile = ConciseFileUtils.getUniqueFile(
+					new File(originalFolder, sourceFile.getName()));
+			FileUtils.copyFile(sourceFile, targetFile);
+		}
+		else {
+			targetFile = sourceFile;
+		}
 		
 		Document doc = new Document();
 		doc.add(new StringField(
