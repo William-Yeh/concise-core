@@ -21,7 +21,7 @@ public class ConcisePCACorr extends ConciseMultivariate {
 	private final List<DocumentPlotData> colProjectionDatas = new ArrayList<DocumentPlotData>();
 	private transient double[][] observations = null;
 	private transient double[] eigenValues = null;
-	private PCAResult detail;
+	private ResultPCA detail;
 	
 	public ConcisePCACorr(Workspace workspace, boolean showPartOfSpeech) {
 		super(workspace, showPartOfSpeech);
@@ -139,7 +139,7 @@ public class ConcisePCACorr extends ConciseMultivariate {
 			double[] pc = colproj[j];
 			colProjectionDatas.add(new DocumentPlotData(doc, pc[0], pc[1]));
 		}
-		detail = new PCAResult(pca, getWords(), getDocs());
+		detail = new ResultPCA(pca, getWords(), getDocs());
 		pca.clear();
 	}
 	
@@ -183,7 +183,7 @@ public class ConcisePCACorr extends ConciseMultivariate {
 		return docs.toArray(new ConciseDocument[0]);
 	}
 	
-	public PCAResult getResult() {
+	public ResultPCA getResult() {
 		return detail;
 	}
 }

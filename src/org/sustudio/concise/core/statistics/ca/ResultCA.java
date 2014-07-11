@@ -3,7 +3,7 @@ package org.sustudio.concise.core.statistics.ca;
 import org.sustudio.concise.core.corpus.ConciseDocument;
 import org.sustudio.concise.core.wordlister.Word;
 
-public class CAResult {
+public class ResultCA {
 
 	private final CorrespondenceAnalysis ca;
 	private final Imatrix principal;
@@ -18,7 +18,7 @@ public class CAResult {
 	private transient double[] rquality;
 	private transient double[] cquality;
 	
-	public CAResult(CorrespondenceAnalysis ca, Word[] rowlabs, ConciseDocument[] collabs) {
+	public ResultCA(CorrespondenceAnalysis ca, Word[] rowlabs, ConciseDocument[] collabs) {
 		this.rowlabs = rowlabs;
 		this.collabs = collabs;
 		principal = ca.getPrincipalMatrix();

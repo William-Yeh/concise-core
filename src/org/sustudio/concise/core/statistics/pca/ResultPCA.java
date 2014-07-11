@@ -3,7 +3,7 @@ package org.sustudio.concise.core.statistics.pca;
 import org.sustudio.concise.core.corpus.ConciseDocument;
 import org.sustudio.concise.core.wordlister.Word;
 
-public class PCAResult {
+public class ResultPCA {
 
 	private final Word[] words;
 	private final ConciseDocument[] docs;
@@ -12,7 +12,7 @@ public class PCAResult {
 	private final double[][] rowPC;
 	private final double[][] colPC;
 	
-	public PCAResult(PCACorr pca, Word[] words, ConciseDocument[] docs) {
+	public ResultPCA(PCACorr pca, Word[] words, ConciseDocument[] docs) {
 		this.words = words;
 		this.docs = docs;
 		rowPC = pca.getRowPrincipalComponents();

@@ -232,8 +232,8 @@ public class ConciseCA extends ConciseMultivariate {
 		return collabs;
 	}
 	
-	public CAResult getResult() {
-		return new CAResult(ca, rowlabs, collabs);
+	public ResultCA getResult() {
+		return new ResultCA(ca, rowlabs, collabs);
 	}
 	
 }
